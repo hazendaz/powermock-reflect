@@ -26,9 +26,8 @@ public class FieldTypeMatcherStrategy extends FieldMatcherStrategy {
 
     @Override
     public void notFound(Class<?> type, boolean isInstanceField) throws FieldNotFoundException {
-        throw new FieldNotFoundException(
-                String.format("No %s field of type \"%s\" could be found in the class hierarchy of %s.",
-                        isInstanceField ? "instance" : "static", expectedFieldType.getName(), type.getName()));
+        throw new FieldNotFoundException("No %s field of type \"%s\" could be found in the class hierarchy of %s."
+                .formatted(isInstanceField ? "instance" : "static", expectedFieldType.getName(), type.getName()));
     }
 
     @Override

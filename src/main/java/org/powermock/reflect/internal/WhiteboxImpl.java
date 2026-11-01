@@ -276,8 +276,8 @@ public class WhiteboxImpl {
             throw e;
         } catch (Throwable e) {
             throw new ConstructorNotFoundException(
-                    String.format("Failed to lookup constructor with parameter types [ %s ] in class %s.",
-                            getArgumentTypesAsString((Object[]) parameterTypes), unmockedType.getName()),
+                    "Failed to lookup constructor with parameter types [ %s ] in class %s."
+                            .formatted(getArgumentTypesAsString((Object[]) parameterTypes), unmockedType.getName()),
                     e);
         }
     }
@@ -1152,7 +1152,7 @@ public class WhiteboxImpl {
             declaredConstructor = type.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
             throw new ConstructorNotFoundException(
-                    String.format("Couldn't find a default constructor in %s.", type.getName()));
+                    "Couldn't find a default constructor in %s.".formatted(type.getName()));
         }
         return declaredConstructor;
     }
@@ -1956,8 +1956,8 @@ public class WhiteboxImpl {
         final Method[] methodArray = methodsToMock.toArray(new Method[0]);
         if (methodArray.length == 0) {
             throw new MethodNotFoundException(
-                    String.format("No methods matching the name(s) %s were found in the class hierarchy of %s.",
-                            concatenateStrings(methodNames), getType(clazz)));
+                    "No methods matching the name(s) %s were found in the class hierarchy of %s."
+                            .formatted(concatenateStrings(methodNames), getType(clazz)));
         }
         return methodArray;
     }
@@ -1995,8 +1995,8 @@ public class WhiteboxImpl {
         final Method[] methodArray = matchingArgumentTypes.toArray(new Method[0]);
         if (methodArray.length == 0) {
             throw new MethodNotFoundException(
-                    String.format("No methods matching the name(s) %s were found in the class hierarchy of %s.",
-                            concatenateStrings(methodName), getType(clazz)));
+                    "No methods matching the name(s) %s were found in the class hierarchy of %s."
+                            .formatted(concatenateStrings(methodName), getType(clazz)));
         }
         return matchingArgumentTypes.toArray(new Method[matchingArgumentTypes.size()]);
     }
@@ -2026,8 +2026,8 @@ public class WhiteboxImpl {
         final Field[] fieldArray = fields.toArray(new Field[fields.size()]);
         if (fieldArray.length == 0) {
             throw new FieldNotFoundException(
-                    String.format("No fields matching the name(s) %s were found in the class hierarchy of %s.",
-                            concatenateStrings(fieldNames), getType(clazz)));
+                    "No fields matching the name(s) %s were found in the class hierarchy of %s."
+                            .formatted(concatenateStrings(fieldNames), getType(clazz)));
         }
         return fieldArray;
     }

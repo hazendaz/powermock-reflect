@@ -17,7 +17,7 @@ public class AllFieldsMatcherStrategy extends FieldMatcherStrategy {
 
     @Override
     public void notFound(Class<?> type, boolean isInstanceField) throws FieldNotFoundException {
-        throw new FieldNotFoundException(String.format("No %s fields were declared in %s.",
-                isInstanceField ? "instance" : "static", type.getName()));
+        throw new FieldNotFoundException(
+                "No %s fields were declared in %s.".formatted(isInstanceField ? "instance" : "static", type.getName()));
     }
 }

@@ -28,7 +28,7 @@ public class AssignableFromFieldTypeMatcherStrategy extends FieldTypeMatcherStra
     @Override
     public void notFound(Class<?> type, boolean isInstanceField) throws FieldNotFoundException {
         throw new FieldNotFoundException(
-                String.format("No %s field assignable from \"%s\" could be found in the class hierarchy of %s.",
+                "No %s field assignable from \"%s\" could be found in the class hierarchy of %s.".formatted(
                         isInstanceField ? "instance" : "static", expectedFieldType.getName(), type.getName()));
     }
 
