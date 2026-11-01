@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    SPDX-License-Identifier: Apache-2.0
+    Copyright 2011-2026 Hazendaz
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.hazendaz</groupId>
+        <artifactId>base-parent</artifactId>
+        <version>64</version>
+        <relativePath />
+    </parent>
+
+    <groupId>com.github.hazendaz</groupId>
+    <artifactId>powermock-reflect</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+
+    <name>powermock-reflect</name>
+    <description>Powermock Reflect</description>
+    <url>https://hazendaz.github.io/powermock-reflect/</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/hazendaz/powermock-reflect.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/hazendaz/powermock-reflect.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/hazendaz/powermock-reflect</url>
+    </scm>
+    <distributionManagement>
+        <site>
+            <id>gh-pages-scm</id>
+            <name>Powermock Reflect GitHub Pages</name>
+            <url>scm:git:ssh://git@github.com/hazendaz/powermock-reflect.git</url>
+        </site>
+    </distributionManagement>
+
+    <properties>
+        <!-- Maven compiler options -->
+        <java.version>17</java.version>
+        <java.release.version>17</java.release.version>
+        <java.test.version>17</java.test.version>
+        <java.test.release.version>17</java.test.release.version>
+        <javadoc.java.release.version>17</javadoc.java.release.version>
+
+        <!-- Automatic Module Name -->
+        <module.name>com.github.hazendaz.powermock.reflect</module.name>
+
+        <!-- Jacoco minimum code coverage -->
+        <jacoco.minimum.coverage>0.46</jacoco.minimum.coverage>
+
+        <!-- Reproducible Builds -->
+        <project.build.outputTimestamp>1781425079</project.build.outputTimestamp>
+
+        <!-- Surefire Setup -->
+        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>3.6</version>
+        </dependency>
+    </dependencies>
+
+</project>
