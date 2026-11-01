@@ -147,7 +147,7 @@ Original upstream source:
 
 - Repository: https://github.com/powermock/powermock
 - Module: `powermock-reflect`
-- Original source revision: `a0be5c4b`
+- Original source revision: [a0be5c4b](https://github.com/powermock/powermock/commit/a0be5c4bbeb04f13a6aec2653c1f5663cece1316)
 
 The original project copyright notices and applicable license terms are retained. This project is distributed under the Apache License, Version 2.0.
 
