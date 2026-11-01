@@ -8,6 +8,7 @@ package org.powermock.reflect.exceptions;
  * A run-time exception that may be thrown to indicate that too many fields were found.
  */
 public class TooManyFieldsFoundException extends RuntimeException {
+    /** The serial version uid. */
     private static final long serialVersionUID = 1564231184610341053L;
 
     /**

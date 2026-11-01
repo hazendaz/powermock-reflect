@@ -4,6 +4,9 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Interface AnInterface.
+ */
 public interface AnInterface {
 
 }

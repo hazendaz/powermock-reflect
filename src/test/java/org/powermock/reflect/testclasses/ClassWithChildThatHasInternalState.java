@@ -4,9 +4,13 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class ClassWithChildThatHasInternalState.
+ */
 @SuppressWarnings("unused")
 public class ClassWithChildThatHasInternalState extends ClassWithInternalState {
 
+    /** The another internal state. */
     private int anotherInternalState = 42;
 
 }

@@ -4,5 +4,8 @@
  */
 package org.powermock.reflect.internal.proxy;
 
+/**
+ * The Interface AnotherInterface.
+ */
 public interface AnotherInterface {
 }

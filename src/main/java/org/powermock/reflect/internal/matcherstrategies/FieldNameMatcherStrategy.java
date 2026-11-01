@@ -8,10 +8,20 @@ import java.lang.reflect.Field;
 
 import org.powermock.reflect.exceptions.FieldNotFoundException;
 
+/**
+ * The Class FieldNameMatcherStrategy.
+ */
 public class FieldNameMatcherStrategy extends FieldMatcherStrategy {
 
+    /** The field name. */
     private final String fieldName;
 
+    /**
+     * Instantiates a new field name matcher strategy.
+     *
+     * @param fieldName
+     *            the field name
+     */
     public FieldNameMatcherStrategy(String fieldName) {
         if (fieldName == null || fieldName.equals("") || fieldName.startsWith(" ")) {
             throw new IllegalArgumentException("field name cannot be null.");

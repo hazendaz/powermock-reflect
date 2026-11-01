@@ -129,6 +129,8 @@ public class Whitebox {
      * exceptions otherwise required. These exceptions are wrapped as runtime exceptions. The constructor is also set to
      * accessible.
      *
+     * @param <T>
+     *            the generic type
      * @param type
      *            The type of the class where the constructor is located.
      * @param parameterTypes
@@ -145,7 +147,7 @@ public class Whitebox {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until a field with
-     * name <tt>fieldName</tt> is found.
+     * name <code>fieldName</code> is found.
      *
      * @param object
      *            the object whose field to modify
@@ -160,7 +162,7 @@ public class Whitebox {
 
     /**
      * Set an array value of a field using reflection. This method will traverse the super class hierarchy until a field
-     * with name <tt>fieldName</tt> is found.
+     * with name <code>fieldName</code> is found.
      *
      * @param object
      *            the object to modify
@@ -175,8 +177,8 @@ public class Whitebox {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until the first
-     * field assignable to the <tt>value</tt> type is found. The <tt>value</tt> (or <tt>additionaValues</tt> if present)
-     * will then be assigned to this field.
+     * field assignable to the <code>value</code> type is found. The <code>value</code> (or <code>additionaValues</code>
+     * if present) will then be assigned to this field.
      *
      * @param object
      *            the object to modify
@@ -190,8 +192,8 @@ public class Whitebox {
     }
 
     /**
-     * Set the value of a field using reflection at at specific place in the class hierarchy (<tt>where</tt>). This
-     * first field assignable to <tt>object</tt> will then be set to <tt>value</tt>.
+     * Set the value of a field using reflection at at specific place in the class hierarchy (<code>where</code>). This
+     * first field assignable to <code>object</code> will then be set to <code>value</code>.
      *
      * @param object
      *            the object to modify
@@ -223,7 +225,7 @@ public class Whitebox {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until the first
-     * field of type <tt>fieldType</tt> is found. The <tt>value</tt> will then be assigned to this field.
+     * field of type <code>fieldType</code> is found. The <code>value</code> will then be assigned to this field.
      *
      * @param object
      *            the object to modify
@@ -237,9 +239,9 @@ public class Whitebox {
     }
 
     /**
-     * Set the value of a field using reflection at a specific location ( <tt>where</tt>) in the class hierarchy. The
-     * <tt>value</tt> will then be assigned to this field. The first field matching the <tt>fieldType</tt> in the
-     * hierarchy will be set.
+     * Set the value of a field using reflection at a specific location ( <code>where</code>) in the class hierarchy.
+     * The <code>value</code> will then be assigned to this field. The first field matching the <code>fieldType</code>
+     * in the hierarchy will be set.
      *
      * @param object
      *            the object to modify
@@ -256,13 +258,17 @@ public class Whitebox {
 
     /**
      * Get the value of a field using reflection. This method will iterate through the entire class hierarchy and return
-     * the value of the first field named <tt>fieldName</tt>. If you want to get a specific field value at specific
+     * the value of the first field named <code>fieldName</code>. If you want to get a specific field value at specific
      * place in the class hierarchy please refer to {@link #getInternalState(Object, String, Class)}.
      *
+     * @param <T>
+     *            the generic type
      * @param object
      *            the object to modify
      * @param fieldName
      *            the name of the field
+     *
+     * @return the t
      */
     public static <T> T getInternalState(Object object, String fieldName) {
         return WhiteboxImpl.getInternalState(object, fieldName);
@@ -272,12 +278,16 @@ public class Whitebox {
      * Get the value of a field using reflection. Use this method when you need to specify in which class the field is
      * declared. This might be useful when you have mocked the instance you are trying to access.
      *
+     * @param <T>
+     *            the generic type
      * @param object
      *            the object to modify
      * @param fieldName
      *            the name of the field
      * @param where
      *            which class the field is defined
+     *
+     * @return the t
      */
     public static <T> T getInternalState(Object object, String fieldName, Class<?> where) {
         return WhiteboxImpl.getInternalState(object, fieldName, where);
@@ -300,6 +310,8 @@ public class Whitebox {
      *            which class the field is defined
      * @param type
      *            the expected type of the field
+     *
+     * @return the t
      */
     @Deprecated
     public static <T> T getInternalState(Object object, String fieldName, Class<?> where, Class<T> type) {
@@ -308,12 +320,17 @@ public class Whitebox {
 
     /**
      * Get the value of a field using reflection based on the fields type. This method will traverse the super class
-     * hierarchy until the first field of type <tt>fieldType</tt> is found. The value of this field will be returned.
+     * hierarchy until the first field of type <code>fieldType</code> is found. The value of this field will be
+     * returned.
      *
+     * @param <T>
+     *            the generic type
      * @param object
      *            the object to modify
      * @param fieldType
      *            the type of the field
+     *
+     * @return the t
      */
     public static <T> T getInternalState(Object object, Class<T> fieldType) {
         return WhiteboxImpl.getInternalState(object, fieldType);
@@ -322,8 +339,8 @@ public class Whitebox {
 
     /**
      * Get the value of a field using reflection based on the field type. Use this method when you need to specify in
-     * which class the field is declared. The first field matching the <tt>fieldType</tt> in <tt>where</tt> is the field
-     * whose value will be returned.
+     * which class the field is declared. The first field matching the <code>fieldType</code> in <code>where</code> is
+     * the field whose value will be returned.
      *
      * @param <T>
      *            the expected type of the field
@@ -333,6 +350,8 @@ public class Whitebox {
      *            the type of the field
      * @param where
      *            which class the field is defined
+     *
+     * @return the t
      */
     public static <T> T getInternalState(Object object, Class<T> fieldType, Class<?> where) {
         return WhiteboxImpl.getInternalState(object, fieldType, where);
@@ -342,6 +361,15 @@ public class Whitebox {
      * Invoke a private or inner class method without the need to specify the method name. This is thus a more refactor
      * friendly version of the {@link #invokeMethod(Object, String, Object...)} method and is recommend over this method
      * for that reason. This method might be useful to test private methods.
+     *
+     * @param <T>
+     *            the generic type
+     * @param instance
+     *            the instance
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
      *
      * @throws Exception
      *             if something wrong.
@@ -354,6 +382,18 @@ public class Whitebox {
      * Invoke a private or inner class static method without the need to specify the method name. This is thus a more
      * refactor friendly version of the {@link #invokeMethod(Class, String, Object...)} method and is recommend over
      * this method for that reason. This method might be useful to test private methods.
+     *
+     * @param <T>
+     *            the generic type
+     * @param klass
+     *            the klass
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
+     *
+     * @throws Exception
+     *             the exception
      */
     public static synchronized <T> T invokeMethod(Class<?> klass, Object... arguments) throws Exception {
         return WhiteboxImpl.invokeMethod(klass, arguments);
@@ -361,6 +401,20 @@ public class Whitebox {
 
     /**
      * Invoke a private or inner class method. This might be useful to test private methods.
+     *
+     * @param <T>
+     *            the generic type
+     * @param instance
+     *            the instance
+     * @param methodToExecute
+     *            the method to execute
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
+     *
+     * @throws Exception
+     *             the exception
      */
     public static synchronized <T> T invokeMethod(Object instance, String methodToExecute, Object... arguments)
             throws Exception {
@@ -371,6 +425,19 @@ public class Whitebox {
      * Invoke a private or inner class method in cases where PowerMock cannot automatically determine the type of the
      * parameters, for example when mixing primitive types and wrapper types in the same method. For most situations use
      * {@link #invokeMethod(Object, Object...)} instead.
+     *
+     * @param <T>
+     *            the generic type
+     * @param instance
+     *            the instance
+     * @param methodToExecute
+     *            the method to execute
+     * @param argumentTypes
+     *            the argument types
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
      *
      * @throws Exception
      *             Exception that may occur when invoking this method.
@@ -385,6 +452,21 @@ public class Whitebox {
      * cannot automatically determine the type of the parameters, for example when mixing primitive types and wrapper
      * types in the same method. For most situations use {@link #invokeMethod(Object, Object...)} instead.
      *
+     * @param <T>
+     *            the generic type
+     * @param instance
+     *            the instance
+     * @param methodToExecute
+     *            the method to execute
+     * @param definedIn
+     *            the defined in
+     * @param argumentTypes
+     *            the argument types
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
+     *
      * @throws Exception
      *             Exception that may occur when invoking this method.
      */
@@ -396,6 +478,19 @@ public class Whitebox {
     /**
      * Invoke a private or inner class method in that is located in a subclass of the instance. This might be useful to
      * test private methods.
+     *
+     * @param <T>
+     *            the generic type
+     * @param instance
+     *            the instance
+     * @param declaringClass
+     *            the declaring class
+     * @param methodToExecute
+     *            the method to execute
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
      *
      * @throws Exception
      *             Exception that may occur when invoking this method.
@@ -411,6 +506,21 @@ public class Whitebox {
      * <p>
      * Use this for overloaded methods.
      *
+     * @param <T>
+     *            the generic type
+     * @param object
+     *            the object
+     * @param declaringClass
+     *            the declaring class
+     * @param methodToExecute
+     *            the method to execute
+     * @param parameterTypes
+     *            the parameter types
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
+     *
      * @throws Exception
      *             Exception that may occur when invoking this method.
      */
@@ -421,6 +531,20 @@ public class Whitebox {
 
     /**
      * Invoke a static private or inner class method. This may be useful to test private methods.
+     *
+     * @param <T>
+     *            the generic type
+     * @param clazz
+     *            the clazz
+     * @param methodToExecute
+     *            the method to execute
+     * @param arguments
+     *            the arguments
+     *
+     * @return the t
+     *
+     * @throws Exception
+     *             the exception
      */
     public static synchronized <T> T invokeMethod(Class<?> clazz, String methodToExecute, Object... arguments)
             throws Exception {
@@ -446,6 +570,15 @@ public class Whitebox {
      * This ought to be a really rare case. So for most situation, use {@link #invokeConstructor(Class, Object...)}
      * instead.
      *
+     * @param <T>
+     *            the generic type
+     * @param classThatContainsTheConstructorToTest
+     *            the class that contains the constructor to test
+     * @param parameterTypes
+     *            the parameter types
+     * @param arguments
+     *            the arguments
+     *
      * @return The object created after the constructor has been invoked.
      *
      * @throws Exception
@@ -458,6 +591,13 @@ public class Whitebox {
 
     /**
      * Invoke a constructor. Useful for testing classes with a private constructor.
+     *
+     * @param <T>
+     *            the generic type
+     * @param classThatContainsTheConstructorToTest
+     *            the class that contains the constructor to test
+     * @param arguments
+     *            the arguments
      *
      * @return The object created after the constructor has been invoked.
      *
@@ -500,6 +640,11 @@ public class Whitebox {
     }
 
     /**
+     * Gets the type.
+     *
+     * @param object
+     *            the object
+     *
      * @return The type of the of an object.
      */
     public static Class<?> getType(Object object) {
@@ -606,6 +751,9 @@ public class Whitebox {
      *            The unqualified name (simple name) of the inner class.
      *
      * @return The type.
+     *
+     * @throws ClassNotFoundException
+     *             the class not found exception
      */
     public static Class<Object> getInnerClassType(Class<?> declaringClass, String name) throws ClassNotFoundException {
         return WhiteboxImpl.getInnerClassType(declaringClass, name);
@@ -624,6 +772,9 @@ public class Whitebox {
      *            The unqualified name (simple name) of the local class.
      *
      * @return The type.
+     *
+     * @throws ClassNotFoundException
+     *             the class not found exception
      */
     public static Class<Object> getLocalClassType(Class<?> declaringClass, int occurrence, String name)
             throws ClassNotFoundException {
@@ -641,6 +792,9 @@ public class Whitebox {
      *            first one or {@code 2} if you want the second one.
      *
      * @return The type.
+     *
+     * @throws ClassNotFoundException
+     *             the class not found exception
      */
     public static Class<Object> getAnonymousInnerClassType(Class<?> declaringClass, int occurrence)
             throws ClassNotFoundException {
@@ -799,7 +953,6 @@ public class Whitebox {
      * </pre>
      *
      * will set the static variables of {@code MyInstance} to the values specified in {@code MyContext}.
-     * <p>
      *
      * @param instance
      *            The object or class whose fields to set.

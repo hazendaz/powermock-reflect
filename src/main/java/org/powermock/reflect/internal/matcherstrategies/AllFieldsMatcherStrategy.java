@@ -8,6 +8,9 @@ import java.lang.reflect.Field;
 
 import org.powermock.reflect.exceptions.FieldNotFoundException;
 
+/**
+ * The Class AllFieldsMatcherStrategy.
+ */
 public class AllFieldsMatcherStrategy extends FieldMatcherStrategy {
 
     @Override

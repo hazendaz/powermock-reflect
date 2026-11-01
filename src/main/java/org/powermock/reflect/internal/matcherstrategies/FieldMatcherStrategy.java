@@ -31,6 +31,9 @@ public abstract class FieldMatcherStrategy {
      * @param isInstanceField
      *            {@code true} if the field that was looked after was an instance field or {@code false} if it was a
      *            static field.
+     *
+     * @throws FieldNotFoundException
+     *             the field not found exception
      */
     public abstract void notFound(Class<?> type, boolean isInstanceField) throws FieldNotFoundException;
 }

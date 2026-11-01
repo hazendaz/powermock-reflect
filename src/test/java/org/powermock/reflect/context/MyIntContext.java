@@ -4,10 +4,19 @@
  */
 package org.powermock.reflect.context;
 
+/**
+ * The Class MyIntContext.
+ */
 public class MyIntContext {
 
+    /** The simple int state. */
     private int simpleIntState = 42;
 
+    /**
+     * Gets the simple int state.
+     *
+     * @return the simple int state
+     */
     public int getSimpleIntState() {
         return simpleIntState;
     }

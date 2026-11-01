@@ -23,6 +23,9 @@ class WhiteboxImplTest {
 
     /**
      * Asserts that a previous bug was fixed.
+     *
+     * @throws Exception
+     *             the exception
      */
     @Test
     void assertThatClassAndNotStringIsNotSameWhenInvokingCheckIfTypesAreSame() throws Exception {
@@ -33,6 +36,12 @@ class WhiteboxImplTest {
         assertThat(invokeMethod).isFalse();
     }
 
+    /**
+     * Assert that class and class is same when invoking check if types are same.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Test
     void assertThatClassAndClassIsSameWhenInvokingCheckIfTypesAreSame() throws Exception {
         Method method = WhiteboxImpl.getMethod(WhiteboxImpl.class, "checkIfParameterTypesAreSame", boolean.class,
@@ -42,6 +51,12 @@ class WhiteboxImplTest {
         assertThat(invokeMethod).isTrue();
     }
 
+    /**
+     * Gets the best candidate method returns matching method when no overloading.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Test
     void getBestCandidateMethodReturnsMatchingMethodWhenNoOverloading() throws Exception {
         final Method expectedMethod = ClassWithStandardMethod.class.getDeclaredMethod("myMethod", double.class);
@@ -50,6 +65,12 @@ class WhiteboxImplTest {
         assertThat(actualMethod).isEqualTo(expectedMethod);
     }
 
+    /**
+     * Gets the best candidate method returns matching method when overloading.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Test
     void getBestCandidateMethodReturnsMatchingMethodWhenOverloading() throws Exception {
         final Method expectedMethod = ClassWithOverloadedMethods.class.getDeclaredMethod("overloaded", double.class,
@@ -59,6 +80,12 @@ class WhiteboxImplTest {
         assertThat(actualMethod).isEqualTo(expectedMethod);
     }
 
+    /**
+     * Default methods are found.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Test
     void defaultMethodsAreFound() throws Exception {
         assumeTrue(Float.valueOf(System.getProperty("java.specification.version")) >= 1.8f);
@@ -72,6 +99,12 @@ class WhiteboxImplTest {
         assertThat(methodNames).contains("stream");
     }
 
+    /**
+     * Test get method not exact parameter type match.
+     *
+     * @throws NoSuchMethodException
+     *             the no such method exception
+     */
     @Test
     void testGetMethodNotExactParameterTypeMatch() throws NoSuchMethodException {
         Method[] methods = WhiteboxImpl.getMethods(ClassWithMethodUsingBothPrimitiveTypeAndWrappedTypeArguments.class,

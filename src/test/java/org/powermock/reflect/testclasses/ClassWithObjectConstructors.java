@@ -5,17 +5,29 @@
 package org.powermock.reflect.testclasses;
 
 /**
- *
+ * The Class ClassWithObjectConstructors.
  */
 public class ClassWithObjectConstructors {
 
+    /** The name. */
     private final Object name;
 
+    /**
+     * Instantiates a new class with object constructors.
+     *
+     * @param name
+     *            the name
+     */
     protected ClassWithObjectConstructors(Object name) {
 
         this.name = name;
     }
 
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
     public Object getName() {
         return name;
     }

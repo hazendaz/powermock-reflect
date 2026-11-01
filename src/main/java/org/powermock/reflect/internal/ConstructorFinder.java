@@ -11,12 +11,27 @@ import java.util.Set;
 import org.powermock.reflect.exceptions.ConstructorNotFoundException;
 import org.powermock.reflect.exceptions.TooManyConstructorsFoundException;
 
+/**
+ * The Class ConstructorFinder.
+ */
 class ConstructorFinder {
+    /** The type. */
     private Class<?> type;
+    /** The arguments. */
     private Object[] arguments;
+    /** The unmocked type. */
     private Class<?> unmockedType;
+    /** The potential constructor. */
     private Constructor potentialConstructor;
 
+    /**
+     * Instantiates a new constructor finder.
+     *
+     * @param type
+     *            the type
+     * @param arguments
+     *            the arguments
+     */
     ConstructorFinder(Class<?> type, Object... arguments) {
         if (type == null) {
             throw new IllegalArgumentException("Class type cannot be null.");
@@ -31,12 +46,20 @@ class ConstructorFinder {
         }
     }
 
+    /**
+     * Find constructor.
+     *
+     * @return the java.lang.reflect. constructor
+     */
     public java.lang.reflect.Constructor findConstructor() {
         lookupPotentialConstructor();
         throwExceptionIfConstructorWasNotFound();
         return potentialConstructor.getJavaConstructor();
     }
 
+    /**
+     * Lookup potential constructor.
+     */
     private void lookupPotentialConstructor() {
         Set<Constructor> constructors = getDeclaredConstructorsWithoutPowerMockConstructor();
 
@@ -56,10 +79,21 @@ class ConstructorFinder {
         }
     }
 
+    /**
+     * Checks if is var arg constructor found.
+     *
+     * @return true, if successful
+     */
     private boolean isVarArgConstructorFound() {
         return potentialConstructor != null && potentialConstructor.isVarArg();
     }
 
+    /**
+     * Sets the potential constructor.
+     *
+     * @param constructor
+     *            the constructor
+     */
     private void setPotentialConstructor(Constructor constructor) {
         if (potentialConstructor == null) {
             potentialConstructor = constructor;
@@ -74,6 +108,12 @@ class ConstructorFinder {
         }
     }
 
+    /**
+     * Throw exception when multiple constructor matches found.
+     *
+     * @param constructors
+     *            the constructors
+     */
     public void throwExceptionWhenMultipleConstructorMatchesFound(java.lang.reflect.Constructor[] constructors) {
         if (constructors == null || constructors.length < 2) {
             throw new IllegalArgumentException(
@@ -96,6 +136,9 @@ class ConstructorFinder {
         throw new TooManyConstructorsFoundException(sb.toString());
     }
 
+    /**
+     * Add argument for nested class.
+     */
     private void addArgumentForNestedClass() {
         Object[] argumentsForLocalClass = new Object[arguments.length + 1];
         argumentsForLocalClass[0] = unmockedType.getEnclosingClass();
@@ -103,11 +146,21 @@ class ConstructorFinder {
         arguments = argumentsForLocalClass;
     }
 
+    /**
+     * Checks if is nested class.
+     *
+     * @return true, if successful
+     */
     private boolean isNestedClass() {
         return (unmockedType.isLocalClass() || unmockedType.isAnonymousClass() || unmockedType.isMemberClass())
                 && !Modifier.isStatic(unmockedType.getModifiers());
     }
 
+    /**
+     * Gets the declared constructors without power mock constructor.
+     *
+     * @return the declared constructors without power mock constructor
+     */
     private Set<Constructor> getDeclaredConstructorsWithoutPowerMockConstructor() {
         Set<Constructor> constructors = new HashSet<Constructor>();
         for (java.lang.reflect.Constructor<?> constructor : unmockedType.getDeclaredConstructors()) {
@@ -118,11 +171,22 @@ class ConstructorFinder {
         return constructors;
     }
 
+    /**
+     * Is power mock constructor.
+     *
+     * @param parameterTypes
+     *            the parameter types
+     *
+     * @return true, if successful
+     */
     private boolean isPowerMockConstructor(Class<?>[] parameterTypes) {
         return parameterTypes.length >= 1
                 && parameterTypes[parameterTypes.length - 1].getName().equals("org.powermock.core.IndicateReloadClass");
     }
 
+    /**
+     * Throw exception if constructor was not found.
+     */
     private void throwExceptionIfConstructorWasNotFound() {
         if (potentialConstructor == null) {
             String message = "No constructor found in class '" + WhiteboxImpl.getOriginalUnmockedType(type).getName()

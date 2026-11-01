@@ -9,10 +9,20 @@ import java.lang.reflect.Field;
 
 import org.powermock.reflect.exceptions.FieldNotFoundException;
 
+/**
+ * The Class FieldAnnotationMatcherStrategy.
+ */
 public class FieldAnnotationMatcherStrategy extends FieldMatcherStrategy {
 
+    /** The annotations. */
     final Class<? extends Annotation>[] annotations;
 
+    /**
+     * Instantiates a new field annotation matcher strategy.
+     *
+     * @param annotations
+     *            the annotations
+     */
     public FieldAnnotationMatcherStrategy(Class<? extends Annotation>[] annotations) {
         if (annotations == null || annotations.length == 0) {
             throw new IllegalArgumentException("You must specify atleast one annotation.");
@@ -41,6 +51,11 @@ public class FieldAnnotationMatcherStrategy extends FieldMatcherStrategy {
         return "annotations " + getAnnotationNames();
     }
 
+    /**
+     * Gets the annotation names.
+     *
+     * @return the annotation names
+     */
     private String getAnnotationNames() {
         final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < annotations.length; i++) {

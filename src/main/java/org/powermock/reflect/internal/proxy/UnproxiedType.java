@@ -4,8 +4,21 @@
  */
 package org.powermock.reflect.internal.proxy;
 
+/**
+ * The Interface UnproxiedType.
+ */
 public interface UnproxiedType {
+    /**
+     * Gets the original type.
+     *
+     * @return the original type
+     */
     Class<?> getOriginalType();
 
+    /**
+     * Gets the interfaces.
+     *
+     * @return the interfaces
+     */
     Class<?>[] getInterfaces();
 }

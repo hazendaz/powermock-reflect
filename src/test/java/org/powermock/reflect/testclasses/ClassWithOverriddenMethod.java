@@ -4,6 +4,9 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class ClassWithOverriddenMethod.
+ */
 public class ClassWithOverriddenMethod extends ClassWithStandardMethod {
 
     @Override

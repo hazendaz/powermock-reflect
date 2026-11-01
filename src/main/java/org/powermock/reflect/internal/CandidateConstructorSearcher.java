@@ -13,17 +13,35 @@ import org.powermock.reflect.internal.comparator.ComparatorFactory;
 
 /**
  * This class search the best candidate in the given class to invoke constructor with given parameters.
+ *
+ * @param <T>
+ *            the generic type
  */
 class CandidateConstructorSearcher<T> {
+    /** The class that contains the constructor to test. */
     private final Class<T> classThatContainsTheConstructorToTest;
+    /** The argument types. */
     private final Class<?>[] argumentTypes;
 
+    /**
+     * Instantiates a new candidate constructor searcher.
+     *
+     * @param classThatContainsTheConstructorToTest
+     *            the class that contains the constructor to test
+     * @param argumentTypes
+     *            the argument types
+     */
     public CandidateConstructorSearcher(Class<T> classThatContainsTheConstructorToTest, Class<?>[] argumentTypes) {
 
         this.classThatContainsTheConstructorToTest = classThatContainsTheConstructorToTest;
         this.argumentTypes = argumentTypes;
     }
 
+    /**
+     * Find constructor.
+     *
+     * @return the constructor
+     */
     public Constructor<T> findConstructor() {
         final Constructor<T>[] constructors = getConstructors();
         if (constructors.length == 0) {
@@ -37,12 +55,25 @@ class CandidateConstructorSearcher<T> {
         }
     }
 
+    /**
+     * Find best candidate.
+     *
+     * @param constructors
+     *            the constructors
+     *
+     * @return the constructor
+     */
     private Constructor<T> findBestCandidate(Constructor<T>[] constructors) {
         // We've found overloaded constructor, we need to find the best one to invoke.
         Arrays.sort(constructors, ComparatorFactory.createConstructorComparator());
         return constructors[0];
     }
 
+    /**
+     * Gets the constructors.
+     *
+     * @return the constructors
+     */
     @SuppressWarnings("unchecked")
     private Constructor<T>[] getConstructors() {
 
@@ -61,6 +92,14 @@ class CandidateConstructorSearcher<T> {
 
     }
 
+    /**
+     * Arguments applied.
+     *
+     * @param constructor
+     *            the constructor
+     *
+     * @return true, if successful
+     */
     private boolean argumentsApplied(Constructor<?> constructor) {
         Class<?>[] constructorArgumentTypes = constructor.getParameterTypes();
         if (constructorArgumentTypes.length != argumentTypes.length) {

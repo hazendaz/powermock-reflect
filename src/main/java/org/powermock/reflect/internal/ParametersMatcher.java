@@ -5,19 +5,37 @@
 package org.powermock.reflect.internal;
 
 /**
- *
+ * The Class ParametersMatcher.
  */
 class ParametersMatcher {
+    /** The parameter types. */
     private final Class<?>[] parameterTypes;
+    /** The arguments. */
     private final Object[] arguments;
+    /** The is var args. */
     private boolean isVarArgs;
 
+    /**
+     * Instantiates a new parameters matcher.
+     *
+     * @param isVarArgs
+     *            the is var args
+     * @param parameterTypes
+     *            the parameter types
+     * @param arguments
+     *            the arguments
+     */
     public ParametersMatcher(boolean isVarArgs, Class<?>[] parameterTypes, Object[] arguments) {
         this.isVarArgs = isVarArgs;
         this.parameterTypes = parameterTypes;
         this.arguments = arguments;
     }
 
+    /**
+     * Match.
+     *
+     * @return true, if successful
+     */
     public boolean match() {
         if ((arguments != null && (parameterTypes.length == arguments.length))) {
             if (parameterTypes.length == 0) {
@@ -31,6 +49,18 @@ class ParametersMatcher {
         }
     }
 
+    /**
+     * Check argument types match parameter types.
+     *
+     * @param isVarArgs
+     *            the is var args
+     * @param parameterTypes
+     *            the parameter types
+     * @param arguments
+     *            the arguments
+     *
+     * @return true, if successful
+     */
     boolean checkArgumentTypesMatchParameterTypes(boolean isVarArgs, Class<?>[] parameterTypes, Object[] arguments) {
         if (parameterTypes == null) {
             throw new IllegalArgumentException("parameter types cannot be null");
@@ -72,6 +102,14 @@ class ParametersMatcher {
         return true;
     }
 
+    /**
+     * Does parameter types match for var args invocation.
+     *
+     * @param arguments
+     *            the arguments
+     *
+     * @return true, if successful
+     */
     boolean doesParameterTypesMatchForVarArgsInvocation(Object[] arguments) {
         if (isVarArgs && arguments != null && arguments.length >= 1 && parameterTypes != null
                 && parameterTypes.length >= 1) {

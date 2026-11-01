@@ -17,20 +17,43 @@ import java.util.Comparator;
  */
 public class ComparatorFactory {
 
+    /**
+     * Instantiates a new comparator factory.
+     */
     private ComparatorFactory() {
     }
 
+    /**
+     * Create constructor comparator.
+     *
+     * @return the comparator
+     */
     public static Comparator<Constructor> createConstructorComparator() {
         return new ConstructorComparator(new ParametersComparator());
     }
 
+    /**
+     * Create method comparator.
+     *
+     * @return the comparator
+     */
     public static Comparator<Method> createMethodComparator() {
         return new MethodComparator(new ParametersComparator());
     }
 
+    /**
+     * The Class ConstructorComparator.
+     */
     public static class ConstructorComparator implements Comparator<Constructor> {
+        /** The parameters comparator. */
         private final ParametersComparator parametersComparator;
 
+        /**
+         * Instantiates a new constructor comparator.
+         *
+         * @param parametersComparator
+         *            the parameters comparator
+         */
         private ConstructorComparator(ParametersComparator parametersComparator) {
 
             this.parametersComparator = parametersComparator;
@@ -45,11 +68,18 @@ public class ComparatorFactory {
     }
 
     /**
-     *
+     * The Class MethodComparator.
      */
     public static class MethodComparator implements Comparator<Method> {
+        /** The parameters comparator. */
         private final ParametersComparator parametersComparator;
 
+        /**
+         * Instantiates a new method comparator.
+         *
+         * @param parametersComparator
+         *            the parameters comparator
+         */
         private MethodComparator(ParametersComparator parametersComparator) {
 
             this.parametersComparator = parametersComparator;
@@ -64,6 +94,9 @@ public class ComparatorFactory {
         }
     }
 
+    /**
+     * The Class ParametersComparator.
+     */
     private static class ParametersComparator implements Comparator<Class[]> {
 
         @Override

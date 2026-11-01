@@ -4,9 +4,18 @@
  */
 package org.powermock.reflect.context;
 
+/**
+ * The Class MyStringContext.
+ */
 public class MyStringContext {
+    /** The my string state. */
     private String myStringState = "string";
 
+    /**
+     * Gets the my string state.
+     *
+     * @return the my string state
+     */
     public String getMyStringState() {
         return myStringState;
     }

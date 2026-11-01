@@ -4,13 +4,34 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class ClassWithStaticMethod.
+ */
 public class ClassWithStaticMethod {
 
+    /**
+     * A static method.
+     *
+     * @param something
+     *            the something
+     *
+     * @return the string
+     */
     @SuppressWarnings({ "UnusedDeclaration" })
     private static String aStaticMethod(byte[] something) {
         return "hello";
     }
 
+    /**
+     * Another static method.
+     *
+     * @param object
+     *            the object
+     * @param something
+     *            the something
+     *
+     * @return the string
+     */
     @SuppressWarnings({ "UnusedDeclaration" })
     private static String anotherStaticMethod(Object object, byte[] something) {
         return object + " " + something;

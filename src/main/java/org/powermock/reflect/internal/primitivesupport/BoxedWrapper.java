@@ -12,6 +12,7 @@ import java.util.Map;
  * primitive type.
  */
 public class BoxedWrapper {
+    /** The boxed wrapper. */
     private static final Map<Class<?>, Class<?>> boxedWrapper = new HashMap<Class<?>, Class<?>>();
 
     static {

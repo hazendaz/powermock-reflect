@@ -5,7 +5,7 @@
 package org.powermock.reflect.internal.proxy;
 
 /**
- *
+ * The Class SomeClass.
  */
 public class SomeClass {
 }

@@ -4,7 +4,16 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class ClassWithMethodUsingSuperTypeArgument.
+ */
 public class ClassWithMethodUsingSuperTypeArgument {
+    /**
+     * Method having a super type argument.
+     *
+     * @param arg
+     *            the arg
+     */
     public void methodHavingASuperTypeArgument(ClassWithStandardMethod arg) {
 
     }

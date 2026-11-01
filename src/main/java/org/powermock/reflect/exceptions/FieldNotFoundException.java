@@ -8,6 +8,7 @@ package org.powermock.reflect.exceptions;
  * A run-time exception that may be thrown to indicate that a field was not found.
  */
 public class FieldNotFoundException extends RuntimeException {
+    /** The serial version uid. */
     private static final long serialVersionUID = 5420195402982130931L;
 
     /**

@@ -12,14 +12,26 @@ import java.util.Map;
  * supposed to be copied.
  */
 public class ClassFieldsNotInTargetContext {
+    /** The something. */
     private static long something = 42L;
 
+    /** The map. */
     private static Map<?, ?> map = new HashMap<Object, Object>();
 
+    /**
+     * Gets the long.
+     *
+     * @return the long
+     */
     public static long getLong() {
         return something;
     }
 
+    /**
+     * Gets the map.
+     *
+     * @return the map
+     */
     public static Map<?, ?> getMap() {
         return map;
     }

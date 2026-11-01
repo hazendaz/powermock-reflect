@@ -12,6 +12,7 @@ import java.util.Map;
  * primitive type.
  */
 public class PrimitiveWrapper {
+    /** The primitive wrapper. */
     private static final Map<Class<?>, Class<?>> primitiveWrapper = new HashMap<Class<?>, Class<?>>();
 
     static {

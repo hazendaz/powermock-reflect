@@ -4,6 +4,9 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class AbstractClass.
+ */
 public abstract class AbstractClass {
 
 }

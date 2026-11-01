@@ -9,10 +9,20 @@ import java.lang.reflect.Field;
 import org.powermock.reflect.exceptions.FieldNotFoundException;
 import org.powermock.reflect.internal.primitivesupport.PrimitiveWrapper;
 
+/**
+ * The Class AssignableFromFieldTypeMatcherStrategy.
+ */
 public class AssignableFromFieldTypeMatcherStrategy extends FieldTypeMatcherStrategy {
 
+    /** The primitive counterpart. */
     private final Class<?> primitiveCounterpart;
 
+    /**
+     * Instantiates a new assignable from field type matcher strategy.
+     *
+     * @param fieldType
+     *            the field type
+     */
     public AssignableFromFieldTypeMatcherStrategy(Class<?> fieldType) {
         super(fieldType);
         primitiveCounterpart = PrimitiveWrapper.getPrimitiveFromWrapperType(expectedFieldType);

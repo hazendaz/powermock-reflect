@@ -4,6 +4,9 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class Parent.
+ */
 public class Parent {
 
 }

@@ -284,7 +284,7 @@ public class WhiteboxImpl {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until a field with
-     * name <tt>fieldName</tt> is found.
+     * name <code>fieldName</code> is found.
      *
      * @param object
      *            the object whose field to modify
@@ -300,7 +300,7 @@ public class WhiteboxImpl {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until a field with
-     * name <tt>fieldName</tt> is found.
+     * name <code>fieldName</code> is found.
      *
      * @param object
      *            the object to modify
@@ -315,7 +315,7 @@ public class WhiteboxImpl {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until the first
-     * field of type <tt>fieldType</tt> is found. The <tt>value</tt> will then be assigned to this field.
+     * field of type <code>fieldType</code> is found. The <code>value</code> will then be assigned to this field.
      *
      * @param object
      *            the object to modify
@@ -330,8 +330,8 @@ public class WhiteboxImpl {
 
     /**
      * Set the value of a field using reflection. This method will traverse the super class hierarchy until the first
-     * field assignable to the <tt>value</tt> type is found. The <tt>value</tt> (or <tt>additionaValues</tt> if present)
-     * will then be assigned to this field.
+     * field assignable to the <code>value</code> type is found. The <code>value</code> (or <code>additionaValues</code>
+     * if present) will then be assigned to this field.
      *
      * @param object
      *            the object to modify
@@ -352,8 +352,8 @@ public class WhiteboxImpl {
     }
 
     /**
-     * Set the value of a field using reflection at at specific place in the class hierarchy (<tt>where</tt>). This
-     * first field assignable to <tt>object</tt> will then be set to <tt>value</tt>.
+     * Set the value of a field using reflection at at specific place in the class hierarchy (<code>where</code>). This
+     * first field assignable to <code>object</code> will then be set to <code>value</code>.
      *
      * @param object
      *            the object to modify
@@ -367,8 +367,8 @@ public class WhiteboxImpl {
     }
 
     /**
-     * Set the value of a field using reflection at a specific location ( <tt>where</tt>) in the class hierarchy. The
-     * <tt>value</tt> will then be assigned to this field.
+     * Set the value of a field using reflection at a specific location ( <code>where</code>) in the class hierarchy.
+     * The <code>value</code> will then be assigned to this field.
      *
      * @param object
      *            the object to modify
@@ -416,7 +416,7 @@ public class WhiteboxImpl {
 
     /**
      * Get the value of a field using reflection. This method will iterate through the entire class hierarchy and return
-     * the value of the first field named <tt>fieldName</tt>. If you want to get a specific field value at specific
+     * the value of the first field named <code>fieldName</code>. If you want to get a specific field value at specific
      * place in the class hierarchy please refer to
      *
      * @param <T>
@@ -593,7 +593,7 @@ public class WhiteboxImpl {
 
     /**
      * Get the value of a field using reflection. This method will traverse the super class hierarchy until the first
-     * field of type <tt>fieldType</tt> is found. The value of this field will be returned.
+     * field of type <code>fieldType</code> is found. The value of this field will be returned.
      *
      * @param <T>
      *            the generic type
@@ -616,8 +616,8 @@ public class WhiteboxImpl {
 
     /**
      * Get the value of a field using reflection. Use this method when you need to specify in which class the field is
-     * declared. The first field matching the <tt>fieldType</tt> in <tt>where</tt> will is the field whose value will be
-     * returned.
+     * declared. The first field matching the <code>fieldType</code> in <code>where</code> will is the field whose value
+     * will be returned.
      *
      * @param <T>
      *            the expected type of the field
@@ -1079,6 +1079,14 @@ public class WhiteboxImpl {
         return bestMatch;
     }
 
+    /**
+     * To boxed if primitive.
+     *
+     * @param type
+     *            the type
+     *
+     * @return the class
+     */
     private static Class<?> toBoxedIfPrimitive(Class<?> type) {
         return type.isPrimitive() ? BoxedWrapper.getBoxedFromPrimitiveType(type) : type;
     }
@@ -1463,6 +1471,20 @@ public class WhiteboxImpl {
         return createInstance(constructor, arguments);
     }
 
+    /**
+     * Get best candidate constructor.
+     *
+     * @param <T>
+     *            the generic type
+     * @param classThatContainsTheConstructorToTest
+     *            the class that contains the constructor to test
+     * @param argumentTypes
+     *            the argument types
+     * @param arguments
+     *            the arguments
+     *
+     * @return the constructor
+     */
     private static <T> Constructor<T> getBestCandidateConstructor(Class<T> classThatContainsTheConstructorToTest,
             Class<?>[] argumentTypes, Object[] arguments) {
         Constructor<T> constructor;
@@ -1493,12 +1515,36 @@ public class WhiteboxImpl {
         return constructor;
     }
 
+    /**
+     * Get potential constructor wrapped.
+     *
+     * @param <T>
+     *            the generic type
+     * @param classThatContainsTheConstructorToTest
+     *            the class that contains the constructor to test
+     * @param argumentTypes
+     *            the argument types
+     *
+     * @return the constructor
+     */
     private static <T> Constructor<T> getPotentialConstructorWrapped(Class<T> classThatContainsTheConstructorToTest,
             Class<?>[] argumentTypes) {
         return new CandidateConstructorSearcher<T>(classThatContainsTheConstructorToTest, argumentTypes)
                 .findConstructor();
     }
 
+    /**
+     * Get potential constructor primitive.
+     *
+     * @param <T>
+     *            the generic type
+     * @param classThatContainsTheConstructorToTest
+     *            the class that contains the constructor to test
+     * @param argumentTypes
+     *            the argument types
+     *
+     * @return the constructor
+     */
     private static <T> Constructor<T> getPotentialConstructorPrimitive(Class<T> classThatContainsTheConstructorToTest,
             Class<?>[] argumentTypes) {
 
@@ -1517,6 +1563,16 @@ public class WhiteboxImpl {
         return potentialConstructorPrimitive;
     }
 
+    /**
+     * Argument types equals primitive types.
+     *
+     * @param argumentTypes
+     *            the argument types
+     * @param primitiveType
+     *            the primitive type
+     *
+     * @return true, if successful
+     */
     private static boolean argumentTypesEqualsPrimitiveTypes(Class<?>[] argumentTypes, Class<?>[] primitiveType) {
         for (int index = 0; index < argumentTypes.length; index++) {
             if (!argumentTypes[index].equals(primitiveType[index])) {
@@ -1663,6 +1719,14 @@ public class WhiteboxImpl {
         return allMethods;
     }
 
+    /**
+     * Do get all methods.
+     *
+     * @param clazz
+     *            the clazz
+     *
+     * @return the method[]
+     */
     private static Method[] doGetAllMethods(Class<?> clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("You must specify a class in order to get the methods.");
@@ -1839,6 +1903,16 @@ public class WhiteboxImpl {
         return getUnproxiedType(type).getOriginalType();
     }
 
+    /**
+     * Get unproxied type.
+     *
+     * @param <T>
+     *            the generic type
+     * @param type
+     *            the type
+     *
+     * @return the unproxied type
+     */
     public static <T> UnproxiedType getUnproxiedType(Class<T> type) {
         return proxyFrameworks.getUnproxiedType(type);
     }
@@ -2258,6 +2332,16 @@ public class WhiteboxImpl {
         return true;
     }
 
+    /**
+     * Is assignable from.
+     *
+     * @param type
+     *            the type
+     * @param from
+     *            the from
+     *
+     * @return true, if successful
+     */
     static boolean isAssignableFrom(Class<?> type, Class<?> from) {
         boolean assignableFrom;
         Class<?> theType = getComponentType(type);
@@ -2272,6 +2356,14 @@ public class WhiteboxImpl {
         return assignableFrom;
     }
 
+    /**
+     * Get component type.
+     *
+     * @param type
+     *            the type
+     *
+     * @return the class
+     */
     private static Class<?> getComponentType(Class<?> type) {
         Class<?> theType = type;
         while (theType.isArray()) {
@@ -2570,6 +2662,14 @@ public class WhiteboxImpl {
         }
     }
 
+    /**
+     * Set static field using unsafe.
+     *
+     * @param field
+     *            the field
+     * @param newValue
+     *            the new value
+     */
     private static void setStaticFieldUsingUnsafe(final Field field, final Object newValue) {
         try {
             field.setAccessible(true);
@@ -2602,6 +2702,16 @@ public class WhiteboxImpl {
         }
     }
 
+    /**
+     * Set field using unsafe.
+     *
+     * @param field
+     *            the field
+     * @param object
+     *            the object
+     * @param newValue
+     *            the new value
+     */
     private static void setFieldUsingUnsafe(final Field field, final Object object, final Object newValue) {
         try {
             field.setAccessible(true);
@@ -2633,6 +2743,20 @@ public class WhiteboxImpl {
         }
     }
 
+    /**
+     * Gets the unsafe.
+     *
+     * @return the unsafe
+     *
+     * @throws IllegalArgumentException
+     *             the illegal argument exception
+     * @throws IllegalAccessException
+     *             the illegal access exception
+     * @throws NoSuchFieldException
+     *             the no such field exception
+     * @throws SecurityException
+     *             the security exception
+     */
     private static Unsafe getUnsafe()
             throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
         Field field1 = Unsafe.class.getDeclaredField("theUnsafe");
@@ -2641,6 +2765,20 @@ public class WhiteboxImpl {
         return unsafe;
     }
 
+    /**
+     * Set field using unsafe.
+     *
+     * @param base
+     *            the base
+     * @param type
+     *            the type
+     * @param offset
+     *            the offset
+     * @param newValue
+     *            the new value
+     * @param unsafe
+     *            the unsafe
+     */
     private static void setFieldUsingUnsafe(Object base, Class type, long offset, Object newValue, Unsafe unsafe) {
         if (type == Integer.TYPE) {
             unsafe.putInt(base, offset, ((Integer) newValue));
@@ -2788,6 +2926,16 @@ public class WhiteboxImpl {
         }
     }
 
+    /**
+     * Set internal state from context.
+     *
+     * @param object
+     *            the object
+     * @param context
+     *            the context
+     * @param strategy
+     *            the strategy
+     */
     public static void setInternalStateFromContext(Object object, Object context, FieldMatchingStrategy strategy) {
         if (isClass(context)) {
             copyState(object, getType(context), strategy);
@@ -2907,14 +3055,46 @@ public class WhiteboxImpl {
         return converted;
     }
 
+    /**
+     * Copy to mock.
+     *
+     * @param <T>
+     *            the generic type
+     * @param from
+     *            the from
+     * @param mock
+     *            the mock
+     */
     public static <T> void copyToMock(T from, T mock) {
         copy(from, mock, from.getClass());
     }
 
+    /**
+     * Copy to real object.
+     *
+     * @param <T>
+     *            the generic type
+     * @param from
+     *            the from
+     * @param to
+     *            the to
+     */
     public static <T> void copyToRealObject(T from, T to) {
         copy(from, to, from.getClass());
     }
 
+    /**
+     * Copy.
+     *
+     * @param <T>
+     *            the generic type
+     * @param from
+     *            the from
+     * @param to
+     *            the to
+     * @param fromClazz
+     *            the from clazz
+     */
     private static <T> void copy(T from, T to, Class<?> fromClazz) {
         while (fromClazz != Object.class) {
             copyValues(from, to, fromClazz);
@@ -2922,6 +3102,18 @@ public class WhiteboxImpl {
         }
     }
 
+    /**
+     * Copy values.
+     *
+     * @param <T>
+     *            the generic type
+     * @param from
+     *            the from
+     * @param mock
+     *            the mock
+     * @param classFrom
+     *            the class from
+     */
     private static <T> void copyValues(T from, T mock, Class<?> classFrom) {
         Field[] fields = classFrom.getDeclaredFields();
 
@@ -2942,6 +3134,21 @@ public class WhiteboxImpl {
         }
     }
 
+    /**
+     * Copy value.
+     *
+     * @param <T>
+     *            the generic type
+     * @param from
+     *            the from
+     * @param to
+     *            the to
+     * @param field
+     *            the field
+     *
+     * @throws IllegalAccessException
+     *             the illegal access exception
+     */
     private static <T> void copyValue(T from, T to, Field field) throws IllegalAccessException {
         Object value = field.get(from);
         field.set(to, value);

@@ -6,8 +6,17 @@ package org.powermock.reflect.internal.matcherstrategies;
 
 import java.lang.reflect.Field;
 
+/**
+ * The Class AssignableToFieldTypeMatcherStrategy.
+ */
 public class AssignableToFieldTypeMatcherStrategy extends FieldTypeMatcherStrategy {
 
+    /**
+     * Instantiates a new assignable to field type matcher strategy.
+     *
+     * @param fieldType
+     *            the field type
+     */
     public AssignableToFieldTypeMatcherStrategy(Class<?> fieldType) {
         super(fieldType);
     }

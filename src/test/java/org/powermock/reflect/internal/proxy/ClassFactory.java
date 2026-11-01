@@ -8,8 +8,22 @@ import net.bytebuddy.jar.asm.ClassWriter;
 import net.bytebuddy.jar.asm.MethodVisitor;
 import net.bytebuddy.jar.asm.Opcodes;
 
+/**
+ * The Class ClassFactory.
+ */
 class ClassFactory implements Opcodes {
 
+    /**
+     * Create.
+     *
+     * @param className
+     *            the class name
+     *
+     * @return the byte[]
+     *
+     * @throws Exception
+     *             the exception
+     */
     static byte[] create(String className) throws Exception {
 
         ClassWriter cw = new ClassWriter(0);

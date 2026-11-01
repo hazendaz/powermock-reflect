@@ -8,6 +8,7 @@ package org.powermock.reflect.exceptions;
  * A run-time exception that may be thrown to indicate that a method was not found.
  */
 public class MethodNotFoundException extends RuntimeException {
+    /** The serial version uid. */
     private static final long serialVersionUID = -1617211962548265914L;
 
     /**

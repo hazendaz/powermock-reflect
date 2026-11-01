@@ -4,6 +4,9 @@
  */
 package org.powermock.reflect.testclasses;
 
+/**
+ * The Class Child.
+ */
 public class Child extends Parent {
 
 }

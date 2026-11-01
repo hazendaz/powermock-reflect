@@ -22,18 +22,32 @@ import org.powermock.reflect.internal.WhiteboxImpl;
  */
 class WhiteBoxGetFieldTest {
 
+    /**
+     * The Interface SomeInterface.
+     */
     interface SomeInterface {
     }
 
+    /**
+     * The Class GrandParentClass.
+     */
     class GrandParentClass {
+        /** The field a. */
         @SuppressWarnings("unused")
         private String fieldA;
     }
 
+    /**
+     * The Class ParentClass.
+     */
     class ParentClass extends GrandParentClass {
     }
 
+    /**
+     * The Class ClassUnderTest.
+     */
     class ClassUnderTest extends ParentClass implements SomeInterface {
+        /** The field b. */
         @SuppressWarnings("unused")
         private String fieldB;
     }
