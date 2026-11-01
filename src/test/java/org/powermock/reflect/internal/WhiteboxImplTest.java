@@ -4,28 +4,28 @@
  */
 package org.powermock.reflect.internal;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.testclasses.*;
 
 /**
  * Unit tests specific to the WhiteboxImpl.
  */
-public class WhiteboxImplTest {
+class WhiteboxImplTest {
 
     /**
      * Asserts that a previous bug was fixed.
      */
     @Test
-    public void assertThatClassAndNotStringIsNotSameWhenInvokingCheckIfTypesAreSame() throws Exception {
+    void assertThatClassAndNotStringIsNotSameWhenInvokingCheckIfTypesAreSame() throws Exception {
         Method method = WhiteboxImpl.getMethod(WhiteboxImpl.class, "checkIfParameterTypesAreSame", boolean.class,
                 Class[].class, Class[].class);
         boolean invokeMethod = (Boolean) method.invoke(WhiteboxImpl.class, false, new Class<?>[] { Class.class },
@@ -34,7 +34,7 @@ public class WhiteboxImplTest {
     }
 
     @Test
-    public void assertThatClassAndClassIsSameWhenInvokingCheckIfTypesAreSame() throws Exception {
+    void assertThatClassAndClassIsSameWhenInvokingCheckIfTypesAreSame() throws Exception {
         Method method = WhiteboxImpl.getMethod(WhiteboxImpl.class, "checkIfParameterTypesAreSame", boolean.class,
                 Class[].class, Class[].class);
         boolean invokeMethod = (Boolean) method.invoke(WhiteboxImpl.class, false, new Class<?>[] { Class.class },
@@ -43,7 +43,7 @@ public class WhiteboxImplTest {
     }
 
     @Test
-    public void getBestCandidateMethodReturnsMatchingMethodWhenNoOverloading() throws Exception {
+    void getBestCandidateMethodReturnsMatchingMethodWhenNoOverloading() throws Exception {
         final Method expectedMethod = ClassWithStandardMethod.class.getDeclaredMethod("myMethod", double.class);
         final Method actualMethod = WhiteboxImpl.getBestMethodCandidate(ClassWithStandardMethod.class, "myMethod",
                 new Class<?>[] { double.class }, false);
@@ -51,7 +51,7 @@ public class WhiteboxImplTest {
     }
 
     @Test
-    public void getBestCandidateMethodReturnsMatchingMethodWhenOverloading() throws Exception {
+    void getBestCandidateMethodReturnsMatchingMethodWhenOverloading() throws Exception {
         final Method expectedMethod = ClassWithOverloadedMethods.class.getDeclaredMethod("overloaded", double.class,
                 Child.class);
         final Method actualMethod = WhiteboxImpl.getBestMethodCandidate(ClassWithOverloadedMethods.class, "overloaded",
@@ -60,7 +60,7 @@ public class WhiteboxImplTest {
     }
 
     @Test
-    public void defaultMethodsAreFound() throws Exception {
+    void defaultMethodsAreFound() throws Exception {
         assumeTrue(Float.valueOf(System.getProperty("java.specification.version")) >= 1.8f);
 
         Method[] methods = WhiteboxImpl.getAllMethods(Collection.class);
@@ -73,7 +73,7 @@ public class WhiteboxImplTest {
     }
 
     @Test
-    public void testGetMethodNotExactParameterTypeMatch() throws NoSuchMethodException {
+    void testGetMethodNotExactParameterTypeMatch() throws NoSuchMethodException {
         Method[] methods = WhiteboxImpl.getMethods(ClassWithMethodUsingBothPrimitiveTypeAndWrappedTypeArguments.class,
                 "methodHavingBothPrimitiveTypeAndWrappedTypeArguments", new Class<?>[] { Integer.class, Integer.class },
                 false);

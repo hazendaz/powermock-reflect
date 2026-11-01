@@ -4,7 +4,7 @@
  */
 package org.powermock.reflect.internal.proxy;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -18,30 +18,30 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.InvocationHandler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ProxyFrameworksTest {
+class ProxyFrameworksTest {
 
     private ProxyFrameworks proxyFrameworks;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         proxyFrameworks = new ProxyFrameworks();
     }
 
     @Test
-    public void should_throw_illegal_argument_exception_if_class_is_null() throws Exception {
+    void should_throw_illegal_argument_exception_if_class_is_null() {
         assertThat(proxyFrameworks.getUnproxiedType(null)).isNull();
     }
 
     @Test
-    public void should_return_null_if_object_is_null() throws Exception {
+    void should_return_null_if_object_is_null() {
         assertThat(proxyFrameworks.getUnproxiedType((Object) null)).isNull();
     }
 
     @Test
-    public void should_return_original_class_if_object_not_proxy() throws Exception {
+    void should_return_original_class_if_object_not_proxy() {
         SomeClass someClass = new SomeClass();
 
         UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(someClass);
@@ -50,7 +50,7 @@ public class ProxyFrameworksTest {
     }
 
     @Test
-    public void should_return_original_class_if_proxy_created_with_java() {
+    void should_return_original_class_if_proxy_created_with_java() {
         SomeInterface someInterface = createJavaProxy(new Class[] { SomeInterface.class });
 
         UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(someInterface);
@@ -59,7 +59,7 @@ public class ProxyFrameworksTest {
     }
 
     @Test
-    public void should_return_original_class_if_proxy_created_with_cglib() {
+    void should_return_original_class_if_proxy_created_with_cglib() {
         SomeClass someClass = (SomeClass) createCglibProxy(SomeClass.class);
 
         UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(someClass);
@@ -68,7 +68,7 @@ public class ProxyFrameworksTest {
     }
 
     @Test
-    public void should_not_detect_synthetic_classes_as_cglib_proxy() throws Exception {
+    void should_not_detect_synthetic_classes_as_cglib_proxy() throws Exception {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final Enumeration<URL> resources = classLoader.getResources("org/powermock/reflect/internal/proxy");
 
@@ -84,13 +84,13 @@ public class ProxyFrameworksTest {
 
         Class<?> defineClass = customClassLoader.defineClass(className, bytes);
 
-        UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(defineClass.newInstance());
+        UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(defineClass.getConstructor().newInstance());
 
         assertThatOriginalTypeInstanceOf(unproxiedType, defineClass);
     }
 
     @Test
-    public void should_return_object_as_original_class_if_no_non_no_mocking_interfaces() {
+    void should_return_object_as_original_class_if_no_non_no_mocking_interfaces() {
         Factory someClass = (Factory) createCglibProxy(Factory.class);
 
         UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(someClass);
@@ -99,7 +99,7 @@ public class ProxyFrameworksTest {
     }
 
     @Test
-    public void should_return_interface_as_original_type_if_only_one_non_mocking_interface() {
+    void should_return_interface_as_original_type_if_only_one_non_mocking_interface() {
         Factory someClass = (Factory) createCglibProxy(Factory.class, SomeInterface.class);
 
         UnproxiedType unproxiedType = proxyFrameworks.getUnproxiedType(someClass);
@@ -108,7 +108,7 @@ public class ProxyFrameworksTest {
     }
 
     @Test
-    public void should_return_interface_and_original_type_if_proxy_has_interface_and_superclass() {
+    void should_return_interface_and_original_type_if_proxy_has_interface_and_superclass() {
         SomeClass someClass = (SomeClass) createCglibProxy(SomeClass.class, SomeInterface.class,
                 AnotherInterface.class);
 
@@ -119,9 +119,9 @@ public class ProxyFrameworksTest {
     }
 
     @Test
-    public void should_return_interfaces_if_proxy_create_from_several_interfaces() {
+    void should_return_interfaces_if_proxy_create_from_several_interfaces() {
 
-        Class[] interfaces = { SomeInterface.class, AnotherInterface.class };
+        Class<?>[] interfaces = { SomeInterface.class, AnotherInterface.class };
 
         SomeInterface someInterface = createJavaProxy(interfaces);
 
@@ -130,7 +130,7 @@ public class ProxyFrameworksTest {
         assertThatOriginalIsNullAndInterfaces(unproxiedType, interfaces);
     }
 
-    private Object createCglibProxy(Class<?> superclass, Class... interfaces) {
+    private Object createCglibProxy(Class<?> superclass, Class<?>... interfaces) {
         if (interfaces.length == 0) {
             return Enhancer.create(superclass, new InvocationHandler() {
                 @Override
@@ -148,7 +148,7 @@ public class ProxyFrameworksTest {
         }
     }
 
-    private SomeInterface createJavaProxy(Class[] interfaces) {
+    private SomeInterface createJavaProxy(Class<?>[] interfaces) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return (SomeInterface) Proxy.newProxyInstance(classLoader, interfaces,
                 new java.lang.reflect.InvocationHandler() {
@@ -159,7 +159,7 @@ public class ProxyFrameworksTest {
                 });
     }
 
-    private void assertThatOriginalIsNullAndInterfaces(UnproxiedType unproxiedType, Class[] expectedInterfaces) {
+    private void assertThatOriginalIsNullAndInterfaces(UnproxiedType unproxiedType, Class<?>[] expectedInterfaces) {
         assertThat(unproxiedType.getOriginalType()).isNull();
         assertThat(unproxiedType.getInterfaces()).containsExactlyInAnyOrder(expectedInterfaces);
     }
@@ -170,7 +170,7 @@ public class ProxyFrameworksTest {
     }
 
     private void assertThatOriginalTypeInstanceOfAndInterfaces(UnproxiedType unproxiedType, Class<?> expectedClass,
-            Class[] expectedInterfaces) {
+            Class<?>[] expectedInterfaces) {
         assertThat(unproxiedType.getOriginalType()).isEqualTo(expectedClass);
         assertThat(unproxiedType.getInterfaces()).containsExactlyInAnyOrder(expectedInterfaces);
     }

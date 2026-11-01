@@ -4,11 +4,11 @@
  */
 package org.powermock.reflect;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
 /**
@@ -20,7 +20,7 @@ import org.powermock.reflect.internal.WhiteboxImpl;
  *
  * @author Ben Chatelain
  */
-public class WhiteBoxGetFieldTest {
+class WhiteBoxGetFieldTest {
 
     interface SomeInterface {
     }
@@ -42,7 +42,7 @@ public class WhiteBoxGetFieldTest {
      * Verifies that <a href="http://code.google.com/p/powermock/issues/detail?id=149">issue 149</a> has been resolved.
      */
     @Test
-    public void testGetField() {
+    void testGetField() {
         Field fieldA = WhiteboxImpl.getField(ClassUnderTest.class, "fieldA");
         assertThat(fieldA).isNotNull();
     }
