@@ -13,8 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1692,11 +1690,11 @@ public class WhiteboxImpl {
      */
     public static Constructor<?>[] getAllConstructors(Class<?> clazz) {
         Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+
         for (Constructor<?> constructor : declaredConstructors) {
-            if (!constructor.isAccessible()) {
-                constructor.setAccessible(true);
-            }
+            constructor.trySetAccessible();
         }
+
         return declaredConstructors;
     }
 
@@ -1731,30 +1729,21 @@ public class WhiteboxImpl {
         if (clazz == null) {
             throw new IllegalArgumentException("You must specify a class in order to get the methods.");
         }
-        Set<Method> methods = new LinkedHashSet<Method>();
 
-        Class<?> thisType = clazz;
+        Set<Method> methods = new LinkedHashSet<>();
 
-        while (thisType != null) {
-            final Class<?> type = thisType;
-            final Method[] declaredMethods = AccessController.doPrivileged(new PrivilegedAction<Method[]>() {
-
-                @Override
-                public Method[] run() {
-                    return type.getDeclaredMethods();
-                }
-
-            });
-            for (Method method : declaredMethods) {
+        for (Class<?> type = clazz; type != null; type = type.getSuperclass()) {
+            for (Method method : type.getDeclaredMethods()) {
                 if (!"finalize".equals(method.getName())) {
-                    method.setAccessible(true);
+                    method.trySetAccessible();
                     methods.add(method);
                 }
             }
+
             Collections.addAll(methods, type.getMethods());
-            thisType = thisType.getSuperclass();
         }
-        return methods.toArray(new Method[methods.size()]);
+
+        return methods.toArray(Method[]::new);
     }
 
     /**
@@ -1790,19 +1779,20 @@ public class WhiteboxImpl {
         if (clazz == null) {
             throw new IllegalArgumentException("You must specify the class that contains the fields");
         }
-        Set<Field> fields = new LinkedHashSet<Field>();
 
-        Class<?> thisType = clazz;
+        Set<Field> fields = new LinkedHashSet<>();
 
-        while (thisType != null) {
-            final Field[] declaredFields = thisType.getDeclaredFields();
-            for (Field field : declaredFields) {
-                field.setAccessible(true);
+        Class<?> currentType = clazz;
+        while (currentType != null) {
+            for (Field field : currentType.getDeclaredFields()) {
+                field.trySetAccessible();
                 fields.add(field);
             }
-            thisType = thisType.getSuperclass();
+
+            currentType = currentType.getSuperclass();
         }
-        return fields.toArray(new Field[fields.size()]);
+
+        return fields.toArray(Field[]::new);
     }
 
     /**
@@ -1859,7 +1849,7 @@ public class WhiteboxImpl {
         }
 
         Method methodToMock = null;
-        if (matchingMethodsList.size() > 0) {
+        if (!matchingMethodsList.isEmpty()) {
             if (matchingMethodsList.size() == 1) {
                 // We've found a unique method match.
                 methodToMock = matchingMethodsList.get(0);
@@ -2010,30 +2000,26 @@ public class WhiteboxImpl {
         if (methodNames == null || methodNames.length == 0) {
             throw new IllegalArgumentException("You must supply at least one method name.");
         }
-        final List<Method> methodsToMock = new LinkedList<Method>();
-        Method[] allMethods = null;
-        if (clazz.isInterface()) {
-            allMethods = getAllPublicMethods(clazz);
-        } else {
-            allMethods = getAllMethods(clazz);
-        }
+
+        Set<String> methodNamesSet = new HashSet<>(Arrays.asList(methodNames));
+        List<Method> methodsToMock = new ArrayList<>();
+
+        Method[] allMethods = clazz.isInterface() ? getAllPublicMethods(clazz) : getAllMethods(clazz);
 
         for (Method method : allMethods) {
-            for (String methodName : methodNames) {
-                if (method.getName().equals(methodName)) {
-                    method.setAccessible(true);
-                    methodsToMock.add(method);
-                }
+            if (methodNamesSet.contains(method.getName())) {
+                method.trySetAccessible();
+                methodsToMock.add(method);
             }
         }
 
-        final Method[] methodArray = methodsToMock.toArray(new Method[0]);
-        if (methodArray.length == 0) {
+        if (methodsToMock.isEmpty()) {
             throw new MethodNotFoundException(
                     "No methods matching the name(s) %s were found in the class hierarchy of %s."
                             .formatted(concatenateStrings(methodNames), getType(clazz)));
         }
-        return methodArray;
+
+        return methodsToMock.toArray(Method[]::new);
     }
 
     /**
@@ -2126,32 +2112,40 @@ public class WhiteboxImpl {
     @SuppressWarnings("unchecked")
     public static <T> T performMethodInvocation(Object tested, Method methodToInvoke, Object... arguments)
             throws Exception {
-        final boolean accessible = methodToInvoke.isAccessible();
-        if (!accessible) {
-            methodToInvoke.setAccessible(true);
+        boolean isStatic = Modifier.isStatic(methodToInvoke.getModifiers());
+        boolean accessible = methodToInvoke.canAccess(isStatic ? null : tested);
+
+        if (!accessible && !methodToInvoke.trySetAccessible()) {
+            throw new IllegalAccessException("Cannot access method: " + methodToInvoke);
         }
+
         try {
             if (isPotentialVarArgsMethod(methodToInvoke, arguments)) {
                 Class<?>[] parameterTypes = methodToInvoke.getParameterTypes();
-                final int varArgsIndex = parameterTypes.length - 1;
+                int varArgsIndex = parameterTypes.length - 1;
                 Class<?> varArgsType = parameterTypes[varArgsIndex].getComponentType();
                 Object varArgsArrayInstance = createAndPopulateVarArgsArray(varArgsType, varArgsIndex, arguments);
                 Object[] completeArgumentList = new Object[parameterTypes.length];
+
                 System.arraycopy(arguments, 0, completeArgumentList, 0, varArgsIndex);
-                completeArgumentList[completeArgumentList.length - 1] = varArgsArrayInstance;
+                completeArgumentList[varArgsIndex] = varArgsArrayInstance;
+
                 return (T) methodToInvoke.invoke(tested, completeArgumentList);
-            } else {
-                return (T) methodToInvoke.invoke(tested, arguments == null ? new Object[] { arguments } : arguments);
             }
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw new MethodInvocationException(cause);
+
+            return (T) methodToInvoke.invoke(tested, arguments == null ? new Object[] { null } : arguments);
+        } catch (InvocationTargetException ex) {
+            Throwable cause = ex.getCause();
+
+            if (cause instanceof Exception exception) {
+                throw exception;
             }
+
+            if (cause instanceof Error error) {
+                throw error;
+            }
+
+            throw new MethodInvocationException(cause);
         } finally {
             if (!accessible) {
                 methodToInvoke.setAccessible(false);
@@ -2172,17 +2166,16 @@ public class WhiteboxImpl {
      * @return the all method except
      */
     public static <T> Method[] getAllMethodExcept(Class<T> type, String... methodNames) {
-        List<Method> methodsToMock = new LinkedList<Method>();
-        Method[] methods = getAllMethods(type);
-        iterateMethods: for (Method method : methods) {
-            for (String methodName : methodNames) {
-                if (method.getName().equals(methodName)) {
-                    continue iterateMethods;
-                }
+        Set<String> excludedMethods = new HashSet<>(Arrays.asList(methodNames));
+        List<Method> methodsToMock = new ArrayList<>();
+
+        for (Method method : getAllMethods(type)) {
+            if (!excludedMethods.contains(method.getName())) {
+                methodsToMock.add(method);
             }
-            methodsToMock.add(method);
         }
-        return methodsToMock.toArray(new Method[0]);
+
+        return methodsToMock.toArray(Method[]::new);
     }
 
     /**
@@ -2201,30 +2194,44 @@ public class WhiteboxImpl {
      */
     public static <T> Method[] getAllMethodsExcept(Class<T> type, String methodNameToExclude,
             Class<?>[] argumentTypes) {
-        Method[] methods = getAllMethods(type);
-        List<Method> methodList = new ArrayList<Method>();
-        outer: for (Method method : methods) {
-            if (method.getName().equals(methodNameToExclude)) {
-                if (argumentTypes != null && argumentTypes.length > 0) {
-                    final Class<?>[] args = method.getParameterTypes();
-                    if (args != null && args.length == argumentTypes.length) {
-                        for (int i = 0; i < args.length; i++) {
-                            if (args[i].isAssignableFrom(getOriginalUnmockedType(argumentTypes[i]))) {
-                                /*
-                                 * Method was not found thus it should not be mocked. Continue to investigate the next
-                                 * method.
-                                 */
-                                continue outer;
-                            }
-                        }
-                    }
-                } else {
-                    continue;
-                }
+        List<Method> methodList = new ArrayList<>();
+
+        for (Method method : getAllMethods(type)) {
+            if (method.getName().equals(methodNameToExclude) && (argumentTypes == null || argumentTypes.length == 0
+                    || matchesArguments(method, argumentTypes))) {
+                continue;
             }
+
             methodList.add(method);
         }
-        return methodList.toArray(new Method[0]);
+
+        return methodList.toArray(Method[]::new);
+    }
+
+    /**
+     * Matches arguments.
+     *
+     * @param method
+     *            the method
+     * @param argumentTypes
+     *            the argument types
+     *
+     * @return true, if successful
+     */
+    private static boolean matchesArguments(Method method, Class<?>[] argumentTypes) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+
+        if (parameterTypes.length != argumentTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (!parameterTypes[i].isAssignableFrom(getOriginalUnmockedType(argumentTypes[i]))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -2312,13 +2319,9 @@ public class WhiteboxImpl {
                 if (type.isPrimitive()) {
                     // Primitives cannot be null
                     return false;
-                } else {
-                    continue;
                 }
             } else if (i >= parameterTypes.length) {
-                if (isAssignableFrom(parameterTypes[parameterTypes.length - 1], getType(argument))) {
-                    continue;
-                } else {
+                if (!isAssignableFrom(parameterTypes[parameterTypes.length - 1], getType(argument))) {
                     return false;
                 }
             } else {
@@ -2604,15 +2607,14 @@ public class WhiteboxImpl {
             throw new IllegalArgumentException("where cannot be null");
         }
 
-        Field field = null;
         try {
-            field = where.getDeclaredField(fieldName);
-            field.setAccessible(true);
-        } catch (NoSuchFieldException e) {
+            Field field = where.getDeclaredField(fieldName);
+            field.trySetAccessible();
+            return field;
+        } catch (NoSuchFieldException ex) {
             throw new FieldNotFoundException(
                     "Field '" + fieldName + "' was not found in class " + where.getName() + ".");
         }
-        return field;
     }
 
     /**
@@ -2629,18 +2631,15 @@ public class WhiteboxImpl {
         if (fieldType == null || where == null) {
             throw new IllegalArgumentException("fieldType and where cannot be null");
         }
-        Field field = null;
-        for (Field currentField : where.getDeclaredFields()) {
-            currentField.setAccessible(true);
-            if (currentField.getType().equals(fieldType)) {
-                field = currentField;
-                break;
+
+        for (Field field : where.getDeclaredFields()) {
+            if (field.getType().equals(fieldType)) {
+                field.trySetAccessible();
+                return field;
             }
         }
-        if (field == null) {
-            throw new FieldNotFoundException("Cannot find a field of type " + fieldType + "in where.");
-        }
-        return field;
+
+        throw new FieldNotFoundException("Cannot find a field of type " + fieldType + " in " + where);
     }
 
     /**
@@ -2672,32 +2671,19 @@ public class WhiteboxImpl {
      */
     private static void setStaticFieldUsingUnsafe(final Field field, final Object newValue) {
         try {
-            field.setAccessible(true);
-            int fieldModifiersMask = field.getModifiers();
-            boolean isFinalModifierPresent = (fieldModifiersMask & Modifier.FINAL) == Modifier.FINAL;
-            if (isFinalModifierPresent) {
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try {
-                            Unsafe unsafe = getUnsafe();
-                            long offset = unsafe.staticFieldOffset(field);
-                            Object base = unsafe.staticFieldBase(field);
-                            setFieldUsingUnsafe(base, field.getType(), offset, newValue, unsafe);
-                            return null;
-                        } catch (Throwable t) {
-                            throw new RuntimeException(t);
-                        }
-                    }
-                });
+            if (Modifier.isFinal(field.getModifiers())) {
+                Unsafe unsafe = getUnsafe();
+                long offset = unsafe.staticFieldOffset(field);
+                Object base = unsafe.staticFieldBase(field);
+                setFieldUsingUnsafe(base, field.getType(), offset, newValue, unsafe);
             } else {
+                if (!field.trySetAccessible()) {
+                    throw new IllegalAccessException("Cannot access field: " + field);
+                }
+
                 field.set(null, newValue);
             }
-        } catch (SecurityException ex) {
-            throw new RuntimeException(ex);
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        } catch (IllegalArgumentException ex) {
+        } catch (ReflectiveOperationException | SecurityException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -2714,31 +2700,18 @@ public class WhiteboxImpl {
      */
     private static void setFieldUsingUnsafe(final Field field, final Object object, final Object newValue) {
         try {
-            field.setAccessible(true);
-            int fieldModifiersMask = field.getModifiers();
-            boolean isFinalModifierPresent = (fieldModifiersMask & Modifier.FINAL) == Modifier.FINAL;
-            if (isFinalModifierPresent) {
-                AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try {
-                            Unsafe unsafe = getUnsafe();
-                            long offset = unsafe.objectFieldOffset(field);
-                            setFieldUsingUnsafe(object, field.getType(), offset, newValue, unsafe);
-                            return null;
-                        } catch (Throwable t) {
-                            throw new RuntimeException(t);
-                        }
-                    }
-                });
+            if (Modifier.isFinal(field.getModifiers())) {
+                Unsafe unsafe = getUnsafe();
+                long offset = unsafe.objectFieldOffset(field);
+                setFieldUsingUnsafe(object, field.getType(), offset, newValue, unsafe);
             } else {
-                try {
-                    field.set(object, newValue);
-                } catch (IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
+                if (!field.trySetAccessible()) {
+                    throw new IllegalAccessException("Cannot access field: " + field);
                 }
+
+                field.set(object, newValue);
             }
-        } catch (SecurityException ex) {
+        } catch (ReflectiveOperationException | SecurityException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -2757,12 +2730,14 @@ public class WhiteboxImpl {
      * @throws SecurityException
      *             the security exception
      */
-    private static Unsafe getUnsafe()
-            throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        Field field1 = Unsafe.class.getDeclaredField("theUnsafe");
-        field1.setAccessible(true);
-        Unsafe unsafe = (Unsafe) field1.get(null);
-        return unsafe;
+    private static Unsafe getUnsafe() throws ReflectiveOperationException {
+        Field field = Unsafe.class.getDeclaredField("theUnsafe");
+
+        if (!field.trySetAccessible()) {
+            throw new IllegalAccessException("Cannot access Unsafe.theUnsafe");
+        }
+
+        return (Unsafe) field.get(null);
     }
 
     /**
@@ -2876,10 +2851,9 @@ public class WhiteboxImpl {
     static Class<?> getTypeAsPrimitiveIfWrapped(Object object) {
         if (object != null) {
             final Class<?> firstArgumentType = getType(object);
-            final Class<?> firstArgumentTypeAsPrimitive = PrimitiveWrapper.hasPrimitiveCounterPart(firstArgumentType)
+            return PrimitiveWrapper.hasPrimitiveCounterPart(firstArgumentType)
                     ? PrimitiveWrapper.getPrimitiveFromWrapperType(firstArgumentType)
                     : firstArgumentType;
-            return firstArgumentTypeAsPrimitive;
         }
         return null;
     }
@@ -3115,21 +3089,17 @@ public class WhiteboxImpl {
      *            the class from
      */
     private static <T> void copyValues(T from, T mock, Class<?> classFrom) {
-        Field[] fields = classFrom.getDeclaredFields();
-
-        for (Field field : fields) {
-            // ignore static fields
+        for (Field field : classFrom.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
-            boolean accessible = field.isAccessible();
+
             try {
-                field.setAccessible(true);
-                copyValue(from, mock, field);
+                if (field.trySetAccessible()) {
+                    copyValue(from, mock, field);
+                }
             } catch (Exception ignored) {
-                // Ignore - be lenient - if some field cannot be copied then let's be it
-            } finally {
-                field.setAccessible(accessible);
+                // Ignore fields that cannot be copied.
             }
         }
     }
