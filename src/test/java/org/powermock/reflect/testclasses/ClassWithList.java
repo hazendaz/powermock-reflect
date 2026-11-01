@@ -4,7 +4,7 @@
  */
 package org.powermock.reflect.testclasses;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,6 +14,6 @@ public class ClassWithList {
 
     /** The list. */
     @SuppressWarnings("unused")
-    private List<String> list = new LinkedList<String>();
+    private List<String> list = new ArrayList<String>();
 
 }

@@ -4,6 +4,8 @@
  */
 package org.powermock.reflect.testclasses;
 
+import java.util.Arrays;
+
 /**
  * The Class ClassWithStaticMethod.
  */
@@ -34,6 +36,6 @@ public class ClassWithStaticMethod {
      */
     @SuppressWarnings({ "UnusedDeclaration" })
     private static String anotherStaticMethod(Object object, byte[] something) {
-        return object + " " + something;
+        return object + " " + Arrays.toString(something);
     }
 }

@@ -31,7 +31,7 @@ class WhiteBoxGetFieldTest {
     /**
      * The Class GrandParentClass.
      */
-    class GrandParentClass {
+    static class GrandParentClass {
         /** The field a. */
         @SuppressWarnings("unused")
         private String fieldA;
@@ -40,13 +40,13 @@ class WhiteBoxGetFieldTest {
     /**
      * The Class ParentClass.
      */
-    class ParentClass extends GrandParentClass {
+    static class ParentClass extends GrandParentClass {
     }
 
     /**
      * The Class ClassUnderTest.
      */
-    class ClassUnderTest extends ParentClass implements SomeInterface {
+    static class ClassUnderTest extends ParentClass implements SomeInterface {
         /** The field b. */
         @SuppressWarnings("unused")
         private String fieldB;

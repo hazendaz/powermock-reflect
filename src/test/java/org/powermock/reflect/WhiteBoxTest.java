@@ -226,7 +226,7 @@ class WhiteBoxTest {
      */
     @Test
     void testInvokePrivateMethod_withoutSpecifyingMethodName_assertThatNullWorks() throws Exception {
-        assertTrue(Whitebox.invokeMethod(new ClassWithUniquePrivateMethods(), 8.2d, 8.3d, null) instanceof Object);
+        assertNotNull(Whitebox.invokeMethod(new ClassWithUniquePrivateMethods(), 8.2d, 8.3d, null));
     }
 
     /**

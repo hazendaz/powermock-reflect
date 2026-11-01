@@ -6,12 +6,9 @@ package org.powermock.reflect.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.powermock.reflect.testclasses.*;
@@ -82,21 +79,12 @@ class WhiteboxImplTest {
 
     /**
      * Default methods are found.
-     *
-     * @throws Exception
-     *             the exception
      */
     @Test
-    void defaultMethodsAreFound() throws Exception {
-        assumeTrue(Float.valueOf(System.getProperty("java.specification.version")) >= 1.8f);
-
+    void defaultMethodsAreFound() {
         Method[] methods = WhiteboxImpl.getAllMethods(Collection.class);
-        List<String> methodNames = new ArrayList<String>();
-        for (Method method : methods) {
-            methodNames.add(method.getName());
-        }
 
-        assertThat(methodNames).contains("stream");
+        assertThat(methods).extracting(Method::getName).contains("stream");
     }
 
     /**
