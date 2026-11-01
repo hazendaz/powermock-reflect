@@ -125,14 +125,14 @@ For example:
 
 For application modules, replace `java.base` and `java.lang` with the appropriate module and package names.
 
-PowerMock Reflect uses modern reflection access APIs and reports access failures rather than silently ignoring inaccessible members.
+PowerMock Reflect uses modern reflection access APIs and explicitly reports failures when reflective access is required but cannot be obtained.
 
 ## Building
 
 Clone the repository and build with Maven:
 
 ```shell
-git clone YOUR_REPOSITORY_URL
+git clone https://github.com/hazendaz/powermock-reflect.git
 cd powermock-reflect
 mvn verify
 ```
