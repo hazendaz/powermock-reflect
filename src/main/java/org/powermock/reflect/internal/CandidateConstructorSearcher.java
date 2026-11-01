@@ -79,7 +79,7 @@ class CandidateConstructorSearcher<T> {
 
         try {
             Constructor<?>[] declaredConstructors = classThatContainsTheConstructorToTest.getDeclaredConstructors();
-            List<Constructor<?>> constructors = new ArrayList<Constructor<?>>();
+            List<Constructor<?>> constructors = new ArrayList<>();
             for (Constructor<?> constructor : declaredConstructors) {
                 if (argumentsApplied(constructor)) {
                     constructors.add(constructor);

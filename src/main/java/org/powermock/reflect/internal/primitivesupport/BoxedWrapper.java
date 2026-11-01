@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class BoxedWrapper {
     /** The boxed wrapper. */
-    private static final Map<Class<?>, Class<?>> boxedWrapper = new HashMap<Class<?>, Class<?>>();
+    private static final Map<Class<?>, Class<?>> boxedWrapper = new HashMap<>();
 
     static {
         boxedWrapper.put(int.class, Integer.class);

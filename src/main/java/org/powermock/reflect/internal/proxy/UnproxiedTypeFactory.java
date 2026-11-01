@@ -75,7 +75,7 @@ class UnproxiedTypeFactory {
      * @return the class
      */
     private Class<?>[] filterInterfaces(Class<?>[] interfaces) {
-        List<Class<?>> filtered = new ArrayList<Class<?>>();
+        List<Class<?>> filtered = new ArrayList<>();
 
         for (Class<?> anInterface : interfaces) {
             if (!isMockFrameworkInterface(anInterface)) {

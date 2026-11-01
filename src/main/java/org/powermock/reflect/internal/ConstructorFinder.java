@@ -162,7 +162,7 @@ class ConstructorFinder {
      * @return the declared constructors without power mock constructor
      */
     private Set<Constructor> getDeclaredConstructorsWithoutPowerMockConstructor() {
-        Set<Constructor> constructors = new HashSet<Constructor>();
+        Set<Constructor> constructors = new HashSet<>();
         for (java.lang.reflect.Constructor<?> constructor : unmockedType.getDeclaredConstructors()) {
             if (!isPowerMockConstructor(constructor.getParameterTypes())) {
                 constructors.add(new Constructor(constructor));

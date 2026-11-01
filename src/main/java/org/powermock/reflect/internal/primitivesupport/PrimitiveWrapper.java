@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class PrimitiveWrapper {
     /** The primitive wrapper. */
-    private static final Map<Class<?>, Class<?>> primitiveWrapper = new HashMap<Class<?>, Class<?>>();
+    private static final Map<Class<?>, Class<?>> primitiveWrapper = new HashMap<>();
 
     static {
         primitiveWrapper.put(Integer.class, int.class);

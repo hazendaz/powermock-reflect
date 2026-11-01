@@ -64,7 +64,7 @@ public class WhiteboxImpl {
      * "Strong" map prevent class and method objects from being GCed and unloaded. TODO replace with ClassValue when
      * Powermock drops Java 6 support.
      */
-    private static ConcurrentMap<Class, Method[]> allClassMethodsCache = new ConcurrentHashMap<Class, Method[]>();
+    private static ConcurrentMap<Class, Method[]> allClassMethodsCache = new ConcurrentHashMap<>();
 
     /**
      * Convenience method to get a method from a class type without having to catch the checked exceptions otherwise
@@ -87,7 +87,7 @@ public class WhiteboxImpl {
             parameterTypes = new Class<?>[0];
         }
 
-        List<Method> foundMethods = new LinkedList<Method>();
+        List<Method> foundMethods = new LinkedList<>();
         while (thisType != null) {
             Method[] methodsToTraverse = null;
             if (thisType.isInterface()) {
@@ -185,7 +185,7 @@ public class WhiteboxImpl {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Field getField(Class<?> type, String fieldName) {
-        LinkedList<Class<?>> examine = new LinkedList<Class<?>>();
+        LinkedList<Class<?>> examine = new LinkedList<>();
         examine.add(type);
         Set<Class<?>> done = new HashSet<Class<?>>();
         while (!examine.isEmpty()) {
@@ -198,7 +198,7 @@ public class WhiteboxImpl {
                     return field;
                 }
             }
-            Set<Class<?>> potential = new HashSet<Class<?>>();
+            Set<Class<?>> potential = new HashSet<>();
             final Class<?> clazz = thisType.getSuperclass();
             if (clazz != null) {
                 potential.add(thisType.getSuperclass());
@@ -543,7 +543,7 @@ public class WhiteboxImpl {
     private static Set<Field> findAllFieldsUsingStrategy(FieldMatcherStrategy strategy, Object object,
             boolean checkHierarchy, boolean onlyInstanceFields, Class<?> startClass) {
         assertObjectInGetInternalStateIsNotNull(object);
-        final Set<Field> foundFields = new LinkedHashSet<Field>();
+        final Set<Field> foundFields = new LinkedHashSet<>();
         while (startClass != null) {
             final Field[] declaredFields = startClass.getDeclaredFields();
             for (Field field : declaredFields) {
@@ -1192,7 +1192,7 @@ public class WhiteboxImpl {
      * @return the constructor[]
      */
     static Constructor<?>[] filterPowerMockConstructor(Constructor<?>[] declaredConstructors) {
-        Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
+        Set<Constructor<?>> constructors = new HashSet<>();
         for (Constructor<?> constructor : declaredConstructors) {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length >= 1 && parameterTypes[parameterTypes.length - 1].getName()
@@ -1832,7 +1832,7 @@ public class WhiteboxImpl {
         if (methodName == null && parameterTypes == null) {
             throw new IllegalArgumentException("You must specify a method name or parameter types.");
         }
-        List<Method> matchingMethodsList = new LinkedList<Method>();
+        List<Method> matchingMethodsList = new LinkedList<>();
         for (Method method : getAllMethods(type)) {
             if (methodName == null || method.getName().equals(methodName)) {
                 if (parameterTypes != null && parameterTypes.length > 0) {
@@ -2041,7 +2041,7 @@ public class WhiteboxImpl {
      */
     public static Method[] getMethods(Class<?> clazz, String methodName, Class<?>[] expectedTypes,
             boolean exactParameterTypeMatch) {
-        List<Method> matchingArgumentTypes = new LinkedList<Method>();
+        List<Method> matchingArgumentTypes = new LinkedList<>();
         Method[] methods = getMethods(clazz, methodName);
         for (Method method : methods) {
             final Class<?>[] parameterTypes = method.getParameterTypes();
@@ -2073,7 +2073,7 @@ public class WhiteboxImpl {
      * @return An array of Field's. May be of length 0 but not .
      */
     public static Field[] getFields(Class<?> clazz, String... fieldNames) {
-        final List<Field> fields = new LinkedList<Field>();
+        final List<Field> fields = new LinkedList<>();
 
         for (Field field : getAllFields(clazz)) {
             for (String fieldName : fieldNames) {
