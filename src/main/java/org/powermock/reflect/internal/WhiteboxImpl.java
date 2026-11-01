@@ -13,17 +13,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -61,10 +60,14 @@ public class WhiteboxImpl {
     private static ProxyFrameworks proxyFrameworks = new ProxyFrameworks();
 
     /**
-     * "Strong" map prevent class and method objects from being GCed and unloaded. TODO replace with ClassValue when
-     * Powermock drops Java 6 support.
+     * "Strong" map prevent class and method objects from being GCed and unloaded.
      */
-    private static ConcurrentMap<Class, Method[]> allClassMethodsCache = new ConcurrentHashMap<>();
+    private static final ClassValue<Method[]> allClassMethodsCache = new ClassValue<>() {
+        @Override
+        protected Method[] computeValue(Class<?> type) {
+            return doGetAllMethods(type);
+        }
+    };
 
     /**
      * Convenience method to get a method from a class type without having to catch the checked exceptions otherwise
@@ -82,48 +85,44 @@ public class WhiteboxImpl {
      *         types in the same class.
      */
     public static Method getMethod(Class<?> type, Class<?>... parameterTypes) {
-        Class<?> thisType = type;
         if (parameterTypes == null) {
             parameterTypes = new Class<?>[0];
         }
 
-        List<Method> foundMethods = new LinkedList<>();
-        while (thisType != null) {
-            Method[] methodsToTraverse = null;
-            if (thisType.isInterface()) {
-                // Interfaces only contain public (and abstract) methods, no
-                // need to traverse the hierarchy.
-                methodsToTraverse = getAllPublicMethods(thisType);
-            } else {
-                methodsToTraverse = thisType.getDeclaredMethods();
-            }
+        Class<?> currentType = type;
+
+        while (currentType != null) {
+            Method[] methodsToTraverse = currentType.isInterface() ? getAllPublicMethods(currentType)
+                    : currentType.getDeclaredMethods();
+
+            List<Method> foundMethods = new ArrayList<>();
+
             for (Method method : methodsToTraverse) {
                 if (checkIfParameterTypesAreSame(method.isVarArgs(), parameterTypes, method.getParameterTypes())) {
                     foundMethods.add(method);
-                    if (foundMethods.size() == 1) {
-                        method.setAccessible(true);
-                    }
+                }
+            }
+
+            if (foundMethods.size() == 1) {
+                Method method = foundMethods.get(0);
+
+                if (!method.trySetAccessible()) {
+                    throw new IllegalStateException("Cannot access method: " + method);
                 }
 
+                return method;
             }
-            if (foundMethods.size() == 1) {
-                return foundMethods.get(0);
-            } else if (foundMethods.size() > 1) {
-                break;
+
+            if (foundMethods.size() > 1) {
+                throwExceptionWhenMultipleMethodMatchesFound("method name", foundMethods.toArray(Method[]::new));
             }
-            thisType = thisType.getSuperclass();
+
+            currentType = currentType.getSuperclass();
         }
 
-        if (foundMethods.isEmpty()) {
-            throw new MethodNotFoundException(
-                    "No method was found with parameter types: [ " + getArgumentTypesAsString((Object[]) parameterTypes)
-                            + " ] in class " + getOriginalUnmockedType(type).getName() + ".");
-        } else {
-            throwExceptionWhenMultipleMethodMatchesFound("method name",
-                    foundMethods.toArray(new Method[foundMethods.size()]));
-        }
-        // Will never happen
-        return null;
+        throw new MethodNotFoundException(
+                "No method was found with parameter types: [ " + getArgumentTypesAsString((Object[]) parameterTypes)
+                        + " ] in class " + getOriginalUnmockedType(type).getName() + ".");
     }
 
     /**
@@ -143,27 +142,29 @@ public class WhiteboxImpl {
      * @return A .
      */
     public static Method getMethod(Class<?> type, String methodName, Class<?>... parameterTypes) {
-        Class<?> thisType = type;
         if (parameterTypes == null) {
             parameterTypes = new Class<?>[0];
         }
-        while (thisType != null) {
-            Method[] methodsToTraverse = null;
-            if (thisType.isInterface()) {
-                // Interfaces only contain public (and abstract) methods, no
-                // need to traverse the hierarchy.
-                methodsToTraverse = getAllPublicMethods(thisType);
-            } else {
-                methodsToTraverse = thisType.getDeclaredMethods();
-            }
+
+        Class<?> currentType = type;
+
+        while (currentType != null) {
+            Method[] methodsToTraverse = currentType.isInterface() ? getAllPublicMethods(currentType)
+                    : currentType.getDeclaredMethods();
+
             for (Method method : methodsToTraverse) {
                 if (methodName.equals(method.getName()) && checkIfParameterTypesAreSame(method.isVarArgs(),
                         parameterTypes, method.getParameterTypes())) {
-                    method.setAccessible(true);
+
+                    if (!method.trySetAccessible()) {
+                        throw new IllegalStateException("Cannot access method: " + method);
+                    }
+
                     return method;
                 }
             }
-            thisType = thisType.getSuperclass();
+
+            currentType = currentType.getSuperclass();
         }
 
         throwExceptionIfMethodWasNotFound(type, methodName, null, new Object[] { parameterTypes });
@@ -183,28 +184,36 @@ public class WhiteboxImpl {
      *
      * @return A .
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Field getField(Class<?> type, String fieldName) {
-        LinkedList<Class<?>> examine = new LinkedList<>();
+        Deque<Class<?>> examine = new ArrayDeque<>();
         examine.add(type);
-        Set<Class<?>> done = new HashSet<Class<?>>();
+
+        Set<Class<?>> done = new HashSet<>();
+
         while (!examine.isEmpty()) {
-            Class<?> thisType = examine.removeFirst();
-            done.add(thisType);
-            final Field[] declaredField = thisType.getDeclaredFields();
-            for (Field field : declaredField) {
+            Class<?> currentType = examine.removeFirst();
+            done.add(currentType);
+
+            for (Field field : currentType.getDeclaredFields()) {
                 if (fieldName.equals(field.getName())) {
-                    field.setAccessible(true);
+                    if (!field.trySetAccessible()) {
+                        throw new IllegalStateException("Cannot access field: " + field);
+                    }
+
                     return field;
                 }
             }
+
             Set<Class<?>> potential = new HashSet<>();
-            final Class<?> clazz = thisType.getSuperclass();
-            if (clazz != null) {
-                potential.add(thisType.getSuperclass());
+
+            Class<?> superclass = currentType.getSuperclass();
+            if (superclass != null) {
+                potential.add(superclass);
             }
-            potential.addAll((Collection) Arrays.asList(thisType.getInterfaces()));
+
+            Collections.addAll(potential, currentType.getInterfaces());
             potential.removeAll(done);
+
             examine.addAll(potential);
         }
 
@@ -244,7 +253,7 @@ public class WhiteboxImpl {
                     "Cannot instantiate an abstract class. Please use the ConcreteClassGenerator in PowerMock support to generate a concrete class first.");
         } else {
             Objenesis objenesis = new ObjenesisStd();
-            ObjectInstantiator thingyInstantiator = objenesis.getInstantiatorOf(classToInstantiate);
+            ObjectInstantiator<?> thingyInstantiator = objenesis.getInstantiatorOf(classToInstantiate);
             object = thingyInstantiator.newInstance();
         }
         return (T) object;
@@ -268,9 +277,7 @@ public class WhiteboxImpl {
             final Constructor<?> constructor = unmockedType.getDeclaredConstructor(parameterTypes);
             constructor.setAccessible(true);
             return constructor;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Error e) {
+        } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable e) {
             throw new ConstructorNotFoundException(
@@ -497,31 +504,41 @@ public class WhiteboxImpl {
      */
     private static Field findSingleFieldUsingStrategy(FieldMatcherStrategy strategy, Object object,
             boolean checkHierarchy, Class<?> startClass) {
+
         assertObjectInGetInternalStateIsNotNull(object);
-        Field foundField = null;
-        final Class<?> originalStartClass = startClass;
+
+        Class<?> originalStartClass = startClass;
+
         while (startClass != null) {
-            final Field[] declaredFields = startClass.getDeclaredFields();
-            for (Field field : declaredFields) {
+            Field foundField = null;
+
+            for (Field field : startClass.getDeclaredFields()) {
                 if (strategy.matches(field) && hasFieldProperModifier(object, field, false)) {
                     if (foundField != null) {
                         throw new TooManyFieldsFoundException("Two or more fields matching " + strategy + ".");
                     }
+
                     foundField = field;
                 }
             }
+
             if (foundField != null) {
-                break;
-            } else if (!checkHierarchy) {
+                if (!foundField.trySetAccessible()) {
+                    throw new IllegalStateException("Cannot access field: " + foundField);
+                }
+
+                return foundField;
+            }
+
+            if (!checkHierarchy) {
                 break;
             }
+
             startClass = startClass.getSuperclass();
         }
-        if (foundField == null) {
-            strategy.notFound(originalStartClass, !isClass(object));
-        }
-        foundField.setAccessible(true);
-        return foundField;
+
+        strategy.notFound(originalStartClass, !isClass(object));
+        return null;
     }
 
     /**
@@ -542,25 +559,26 @@ public class WhiteboxImpl {
      */
     private static Set<Field> findAllFieldsUsingStrategy(FieldMatcherStrategy strategy, Object object,
             boolean checkHierarchy, boolean onlyInstanceFields, Class<?> startClass) {
+
         assertObjectInGetInternalStateIsNotNull(object);
-        final Set<Field> foundFields = new LinkedHashSet<>();
+
+        Set<Field> foundFields = new LinkedHashSet<>();
+
         while (startClass != null) {
-            final Field[] declaredFields = startClass.getDeclaredFields();
-            for (Field field : declaredFields) {
+            for (Field field : startClass.getDeclaredFields()) {
                 if (strategy.matches(field) && hasFieldProperModifier(object, field, onlyInstanceFields)) {
-                    // TODO replace by the class
-                    try {
-                        field.setAccessible(true);
-                        foundFields.add(field);
-                    } catch (Exception ignored) {
-                        // the InaccessibleObjectException is thrown in Java 9 in case
-                        // if a field is private and a module is not open
+                    if (!field.trySetAccessible()) {
+                        throw new IllegalStateException("Cannot access field: " + field);
                     }
+
+                    foundFields.add(field);
                 }
             }
+
             if (!checkHierarchy) {
                 break;
             }
+
             startClass = startClass.getSuperclass();
         }
 
@@ -659,14 +677,17 @@ public class WhiteboxImpl {
      */
     @SuppressWarnings("unchecked")
     public static <T> T getInternalState(Object object, String fieldName, Class<?> where) {
-        if (object == null || fieldName == null || fieldName.equals("") || fieldName.startsWith(" ")) {
+        if (object == null || fieldName == null || fieldName.isEmpty() || fieldName.startsWith(" ")) {
             throw new IllegalArgumentException("object, field name, and \"where\" must not be empty or null.");
         }
 
-        Field field = null;
         try {
-            field = where.getDeclaredField(fieldName);
-            field.setAccessible(true);
+            Field field = where.getDeclaredField(fieldName);
+
+            if (!field.trySetAccessible()) {
+                throw new IllegalAccessException("Cannot access field: " + field);
+            }
+
             return (T) field.get(object);
         } catch (NoSuchFieldException e) {
             throw new FieldNotFoundException(
@@ -1019,8 +1040,6 @@ public class WhiteboxImpl {
                                 new Method[] { potentialMethodToInvoke, method });
                     }
                     break;
-                } else if (arguments != null && (paramTypes.length != arguments.length)) {
-                    continue;
                 } else if (arguments == null && paramTypes.length == 1 && !paramTypes[0].isPrimitive()) {
                     potentialMethodToInvoke = method;
                 }
@@ -1334,8 +1353,7 @@ public class WhiteboxImpl {
 
                 if (argument instanceof Class<?>) {
                     argumentName = ((Class<?>) argument).getName();
-                } else if (argument instanceof Class<?>[] && arguments.length == 1) {
-                    Class<?>[] argumentArray = (Class<?>[]) argument;
+                } else if (argument instanceof Class<?>[] argumentArray && arguments.length == 1) {
                     if (argumentArray.length > 0) {
                         for (int j = 0; j < argumentArray.length; j++) {
                             appendArgument(argumentsAsString, j,
@@ -1414,10 +1432,8 @@ public class WhiteboxImpl {
      */
     public static <T> T invokeConstructor(Class<T> classThatContainsTheConstructorToTest, Class<?>[] parameterTypes,
             Object[] arguments) throws Exception {
-        if (parameterTypes != null && arguments != null) {
-            if (parameterTypes.length != arguments.length) {
-                throw new IllegalArgumentException("parameterTypes and arguments must have the same length");
-            }
+        if (parameterTypes != null && arguments != null && parameterTypes.length != arguments.length) {
+            throw new IllegalArgumentException("parameterTypes and arguments must have the same length");
         }
 
         Constructor<T> constructor = null;
@@ -1504,7 +1520,7 @@ public class WhiteboxImpl {
             constructor = potentialConstructorWrapped;
         } else if (potentialConstructorWrapped == null) {
             constructor = potentialConstructorPrimitive;
-        } else if (arguments == null || arguments.length == 0 && potentialConstructorPrimitive != null) {
+        } else if (arguments == null || arguments.length == 0) {
             constructor = potentialConstructorPrimitive;
         } else {
             throw new TooManyConstructorsFoundException(
@@ -1632,31 +1648,44 @@ public class WhiteboxImpl {
         if (constructor == null) {
             throw new IllegalArgumentException("Constructor cannot be null");
         }
-        constructor.setAccessible(true);
 
-        T createdObject = null;
+        boolean accessible = constructor.canAccess(null);
+        if (!accessible && !constructor.trySetAccessible()) {
+            throw new IllegalAccessException("Cannot access constructor: " + constructor);
+        }
+
         try {
+            Object[] constructorArguments = arguments;
+
             if (constructor.isVarArgs()) {
                 Class<?>[] parameterTypes = constructor.getParameterTypes();
-                final int varArgsIndex = parameterTypes.length - 1;
+                int varArgsIndex = parameterTypes.length - 1;
                 Class<?> varArgsType = parameterTypes[varArgsIndex].getComponentType();
+
                 Object varArgsArrayInstance = createAndPopulateVarArgsArray(varArgsType, varArgsIndex, arguments);
-                Object[] completeArgumentList = new Object[parameterTypes.length];
-                System.arraycopy(arguments, 0, completeArgumentList, 0, varArgsIndex);
-                completeArgumentList[completeArgumentList.length - 1] = varArgsArrayInstance;
-                createdObject = constructor.newInstance(completeArgumentList);
-            } else {
-                createdObject = constructor.newInstance(arguments);
+
+                constructorArguments = new Object[parameterTypes.length];
+                System.arraycopy(arguments, 0, constructorArguments, 0, varArgsIndex);
+                constructorArguments[varArgsIndex] = varArgsArrayInstance;
             }
+
+            return constructor.newInstance(constructorArguments);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
+
+            if (cause instanceof Exception exception) {
+                throw exception;
+            }
+            if (cause instanceof Error error) {
+                throw error;
+            }
+
+            throw new Exception(cause);
+        } finally {
+            if (!accessible) {
+                constructor.setAccessible(false);
             }
         }
-        return createdObject;
     }
 
     /**
@@ -1707,14 +1736,7 @@ public class WhiteboxImpl {
      * @return All methods declared in this class hierarchy.
      */
     public static Method[] getAllMethods(Class<?> clazz) {
-        Method[] allMethods = allClassMethodsCache.get(clazz);
-        if (allMethods == null) {
-            // Allows a race between concurrent threads coming for clazz's methods at the same time,
-            // but the race seems to be harmless.
-            allMethods = doGetAllMethods(clazz);
-            allClassMethodsCache.put(clazz, allMethods);
-        }
-        return allMethods;
+        return allClassMethodsCache.get(clazz);
     }
 
     /**
@@ -1758,13 +1780,15 @@ public class WhiteboxImpl {
         if (clazz == null) {
             throw new IllegalArgumentException("You must specify a class in order to get the methods.");
         }
-        Set<Method> methods = new LinkedHashSet<Method>();
+
+        Set<Method> methods = new LinkedHashSet<>();
 
         for (Method method : clazz.getMethods()) {
-            method.setAccessible(true);
+            method.trySetAccessible();
             methods.add(method);
         }
-        return methods.toArray(new Method[0]);
+
+        return methods.toArray(Method[]::new);
     }
 
     /**
