@@ -11,7 +11,10 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.testclasses.*;
+import org.powermock.reflect.testclasses.Child;
+import org.powermock.reflect.testclasses.ClassWithMethodUsingBothPrimitiveTypeAndWrappedTypeArguments;
+import org.powermock.reflect.testclasses.ClassWithOverloadedMethods;
+import org.powermock.reflect.testclasses.ClassWithStandardMethod;
 
 /**
  * Unit tests specific to the WhiteboxImpl.
