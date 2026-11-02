@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -1214,10 +1213,8 @@ public class WhiteboxImpl {
         Set<Constructor<?>> constructors = new HashSet<>();
         for (Constructor<?> constructor : declaredConstructors) {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
-            if (parameterTypes.length >= 1 && parameterTypes[parameterTypes.length - 1].getName()
-                    .equals("org.powermock.core.IndicateReloadClass")) {
-                continue;
-            } else {
+            if (parameterTypes.length == 0 || !"org.powermock.core.IndicateReloadClass"
+                    .equals(parameterTypes[parameterTypes.length - 1].getName())) {
                 constructors.add(constructor);
             }
         }
@@ -1856,7 +1853,7 @@ public class WhiteboxImpl {
         if (methodName == null && parameterTypes == null) {
             throw new IllegalArgumentException("You must specify a method name or parameter types.");
         }
-        List<Method> matchingMethodsList = new LinkedList<>();
+        List<Method> matchingMethodsList = new ArrayList<>();
         for (Method method : getAllMethods(type)) {
             if (methodName == null || method.getName().equals(methodName)) {
                 if (parameterTypes != null && parameterTypes.length > 0) {
@@ -2065,7 +2062,7 @@ public class WhiteboxImpl {
      */
     public static Method[] getMethods(Class<?> clazz, String methodName, Class<?>[] expectedTypes,
             boolean exactParameterTypeMatch) {
-        List<Method> matchingArgumentTypes = new LinkedList<>();
+        List<Method> matchingArgumentTypes = new ArrayList<>();
         Method[] methods = getMethods(clazz, methodName);
         for (Method method : methods) {
             final Class<?>[] parameterTypes = method.getParameterTypes();
@@ -2097,7 +2094,7 @@ public class WhiteboxImpl {
      * @return An array of Field's. May be of length 0 but not .
      */
     public static Field[] getFields(Class<?> clazz, String... fieldNames) {
-        final List<Field> fields = new LinkedList<>();
+        final List<Field> fields = new ArrayList<>();
 
         for (Field field : getAllFields(clazz)) {
             for (String fieldName : fieldNames) {

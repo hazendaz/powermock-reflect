@@ -80,14 +80,10 @@ class ParametersMatcher {
                 if (type.isPrimitive()) {
                     // Primitives cannot be null
                     return false;
-                } else {
-                    continue;
                 }
             } else if (i >= parameterTypes.length) {
-                if (WhiteboxImpl.isAssignableFrom(parameterTypes[parameterTypes.length - 1],
+                if (!WhiteboxImpl.isAssignableFrom(parameterTypes[parameterTypes.length - 1],
                         WhiteboxImpl.getType(argument))) {
-                    continue;
-                } else {
                     return false;
                 }
             } else {
