@@ -34,7 +34,7 @@
     <scm>
         <connection>scm:git:ssh://git@github.com/hazendaz/powermock-reflect.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hazendaz/powermock-reflect.git</developerConnection>
-        <tag>powermock-reflect-3.0.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/hazendaz/powermock-reflect</url>
     </scm>
     <distributionManagement>
