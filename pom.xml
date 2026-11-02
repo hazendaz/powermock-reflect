@@ -63,7 +63,7 @@
         <project.build.outputTimestamp>1781425079</project.build.outputTimestamp>
 
         <!-- Surefire Setup -->
-        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+        <argLine>--sun-misc-unsafe-memory-access=allow --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
     </properties>
 
     <dependencies>
