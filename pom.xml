@@ -18,7 +18,7 @@
 
     <groupId>com.github.hazendaz</groupId>
     <artifactId>powermock-reflect</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
 
     <name>powermock-reflect</name>
     <description>Powermock Reflect</description>
@@ -60,7 +60,7 @@
         <jacoco.minimum.coverage>0.46</jacoco.minimum.coverage>
 
         <!-- Reproducible Builds -->
-        <project.build.outputTimestamp>1793580697</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1793581390</project.build.outputTimestamp>
 
         <!-- Surefire Setup -->
         <argLine>--sun-misc-unsafe-memory-access=allow --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
